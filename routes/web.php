@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,6 +56,11 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::view('/dashboard', 'candidate.dashboard')->name('dashboard');
+    Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
+    Route::post('/resume', [CandidateProfileController::class, 'uploadResume'])->name('resume.store');
+    Route::post('/skills', [CandidateProfileController::class, 'addSkill'])->name('skills.store');
+    Route::delete('/skills/{skill}', [CandidateProfileController::class, 'removeSkill'])->name('skills.destroy');
 });
 
 /*
