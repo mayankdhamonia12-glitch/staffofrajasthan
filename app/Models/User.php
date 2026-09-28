@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\UserRole;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -16,6 +17,7 @@ use Illuminate\Support\Str;
  * @property int $id
  * @property string $name
  * @property string $email
+ * @property UserRole $role
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -39,7 +41,48 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    /**
+     * Determine if the user is an owner.
+     */
+    public function isOwner(): bool
+    {
+        return $this->role === UserRole::Owner;
+    }
+
+    /**
+     * Determine if the user is an administrator.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === UserRole::Admin;
+    }
+
+    /**
+     * Determine if the user is a candidate.
+     */
+    public function isCandidate(): bool
+    {
+        return $this->role === UserRole::Candidate;
+    }
+
+    /**
+     * Determine if the user is an employer.
+     */
+    public function isEmployer(): bool
+    {
+        return $this->role === UserRole::Employer;
+    }
+
+    /**
+     * Determine whether the user has one of the supplied roles.
+     */
+    public function hasAnyRole(UserRole ...$roles): bool
+    {
+        return in_array($this->role, $roles, true);
     }
 
     /**
