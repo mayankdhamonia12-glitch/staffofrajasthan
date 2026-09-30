@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,6 +14,16 @@ class Job extends Model
     protected function casts(): array
     {
         return ['application_deadline' => 'date', 'published_at' => 'datetime', 'is_featured' => 'boolean', 'is_urgent' => 'boolean', 'is_filled' => 'boolean'];
+    }
+
+    public function scopePubliclyAvailable(Builder $query): Builder
+    {
+        return $query
+            ->where('status', 'published')
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->where('is_filled', false)
+            ->where(fn (Builder $jobs) => $jobs->whereNull('application_deadline')->orWhereDate('application_deadline', '>=', today()));
     }
 
     public function company(): BelongsTo

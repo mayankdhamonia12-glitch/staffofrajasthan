@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CandidateProfileController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -10,7 +11,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::view('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->name('home');
+Route::view('/jobs', 'jobs.index')->name('jobs.index');
 
 /*
 |--------------------------------------------------------------------------
