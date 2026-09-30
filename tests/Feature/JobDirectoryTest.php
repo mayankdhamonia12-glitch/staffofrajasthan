@@ -23,7 +23,12 @@ function directoryJob(array $attributes = []): Job
     $location = Location::firstOrCreate(['name' => $place, 'state' => 'Rajasthan'], ['slug' => 'place-'.$sequence]);
     $industry = Industry::firstOrCreate(['name' => $sector], ['slug' => 'sector-'.$sequence]);
     $category = JobCategory::firstOrCreate(['name' => $field], ['slug' => 'field-'.$sequence]);
-    $company = $employer->companies()->create(['name' => $attributes['company'] ?? 'Example Co '.$sequence, 'slug' => 'company-'.$sequence]);
+    $company = $employer->companies()->create([
+        'name' => $attributes['company'] ?? 'Example Co '.$sequence,
+        'slug' => 'company-'.$sequence,
+        'industry_id' => $industry->id,
+        'location_id' => $location->id,
+    ]);
 
     return $company->jobs()->create(array_merge([
         'title' => $attributes['title'] ?? 'Developer '.$sequence,
@@ -128,6 +133,8 @@ test('homepage features current jobs and real company/category data', function (
         ->assertSee('Rajasthan Operations Lead')
         ->assertSee('Example Co')
         ->assertSee($job->category->name)
+        ->assertSee($job->company->industry->name)
+        ->assertSee($job->company->location->name)
         ->assertSee(route('jobs.index', ['category' => $job->category->slug]))
         ->assertSee(route('companies.index'))
         ->assertDontSee('Role matched to your skills');
@@ -141,4 +148,70 @@ test('homepage features current jobs and real company/category data', function (
         ->assertOk()
         ->assertSee($job->company->name)
         ->assertSee('Rajasthan Operations Lead');
+});
+
+test('homepage category cards show published counts and preserve the jobs filter', function () {
+    $publishedOne = directoryJob(['title' => 'Category opening one']);
+    directoryJob(['title' => 'Category opening two', 'job' => ['job_category_id' => $publishedOne->category->id]]);
+    directoryJob(['title' => 'Category draft', 'status' => 'draft', 'job' => ['job_category_id' => $publishedOne->category->id]]);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee($publishedOne->category->name)
+        ->assertSee('2 open roles')
+        ->assertSee(route('jobs.index', ['category' => $publishedOne->category->slug]));
+
+    $this->get(route('jobs.index', ['category' => $publishedOne->category->slug]))
+        ->assertOk()
+        ->assertSee('Category opening one')
+        ->assertSee('Category opening two')
+        ->assertDontSee('Category draft');
+});
+
+test('homepage features only public featured jobs and orders latest jobs by publication', function () {
+    $latest = directoryJob(['title' => 'Most recent public listing', 'published_at' => now()->subMinutes(1), 'job' => ['is_featured' => true]]);
+    $older = directoryJob(['title' => 'Older public listing', 'published_at' => now()->subDay()]);
+    $draft = directoryJob(['title' => 'Draft featured listing', 'status' => 'draft', 'job' => ['is_featured' => true]]);
+    directoryJob(['title' => 'Expired featured listing', 'deadline' => today()->subDay(), 'job' => ['is_featured' => true]]);
+
+    $response = $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('Most recent public listing')
+        ->assertSee('Older public listing')
+        ->assertDontSee('Draft featured listing')
+        ->assertDontSee('Expired featured listing')
+        ->assertSee(route('jobs.show', $latest));
+
+    expect(strpos($response->getContent(), 'Most recent public listing'))
+        ->toBeLessThan(strpos($response->getContent(), 'Older public listing'));
+
+    $this->get(route('jobs.show', $older))
+        ->assertOk()
+        ->assertSee('Job description')
+        ->assertSee(route('companies.show', $older->company));
+
+    $this->get(route('jobs.show', $draft))->assertNotFound();
+});
+
+test('job detail route rejects jobs that are not publicly available', function () {
+    $draft = directoryJob(['title' => 'Private detail listing', 'status' => 'draft']);
+
+    $this->get(route('jobs.show', $draft))->assertNotFound();
+});
+
+test('homepage search submits keyword and location to the searchable jobs directory', function () {
+    directoryJob(['title' => 'Udaipur Laravel Engineer', 'place' => 'Udaipur']);
+    directoryJob(['title' => 'Jaipur Accountant', 'place' => 'Jaipur']);
+
+    $this->get(route('home'))
+        ->assertOk()
+        ->assertSee('action="'.route('jobs.index').'"', false)
+        ->assertSee('method="GET"', false)
+        ->assertSee('name="keyword"', false)
+        ->assertSee('name="location"', false);
+
+    $this->get(route('jobs.index', ['keyword' => 'Laravel', 'location' => 'Udaipur']))
+        ->assertOk()
+        ->assertSee('Udaipur Laravel Engineer')
+        ->assertDontSee('Jaipur Accountant');
 });

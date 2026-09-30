@@ -17,7 +17,7 @@
                 @if ($job->is_urgent)<x-ui.badge tone="red">Urgent</x-ui.badge>@endif
                 @if ($job->is_filled)<x-ui.badge tone="slate">Filled</x-ui.badge>@endif
             </div>
-            <h3 class="mt-2 text-lg font-bold leading-snug text-slate-950">{{ $job->title }}</h3>
+            <h3 class="mt-2 text-lg font-bold leading-snug text-slate-950"><a href="{{ route('jobs.show', $job) }}" class="rounded-sm hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600">{{ $job->title }}</a></h3>
             <p class="mt-1 text-sm text-slate-600">{{ $company?->name ?? 'Employer' }}</p>
             <div class="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-500">
                 <span>{{ $jobLocation }}{{ $job->location?->state ? ', '.$job->location->state : '' }}</span>
@@ -31,5 +31,6 @@
     <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 sm:mt-0 sm:flex-col sm:items-end sm:justify-between sm:border-0 sm:pt-0 {{ $layout === 'list' ? 'sm:min-h-24' : '' }}">
         <span>{{ $job->published_at?->diffForHumans() }}</span>
         <span class="font-medium text-brand-700">{{ $job->category?->name ?? 'Open opportunity' }}</span>
+        <a href="{{ route('jobs.show', $job) }}" class="mt-2 font-semibold text-brand-700 hover:underline">View details <span aria-hidden="true">→</span></a>
     </div>
 </article>

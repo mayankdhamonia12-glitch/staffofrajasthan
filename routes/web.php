@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
 use Illuminate\Support\Facades\Route;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
 Route::view('/jobs', 'jobs.index')->name('jobs.index');
+Route::get('/jobs/{job:slug}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/candidates', [PublicPageController::class, 'candidates'])->name('candidates.index');
 Route::get('/companies', [PublicPageController::class, 'companies'])->name('companies.index');
 Route::get('/companies/{company:slug}', [PublicPageController::class, 'showCompany'])->name('companies.show');
