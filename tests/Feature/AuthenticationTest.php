@@ -2,7 +2,10 @@
 
 use App\Models\User;
 use App\UserRole;
+use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 
 uses(RefreshDatabase::class);
 
@@ -16,6 +19,8 @@ test('the registration page presents separate candidate and employer journeys', 
 });
 
 test('a candidate registration always creates a candidate even with a forged role field', function () {
+    Notification::fake();
+
     $response = $this->post(route('register.candidate.store'), [
         'name' => 'Test Candidate',
         'email' => 'candidate@example.com',
@@ -26,7 +31,22 @@ test('a candidate registration always creates a candidate even with a forged rol
 
     $this->assertAuthenticated();
     $response->assertRedirect(route('candidate.dashboard'));
-    expect(User::where('email', 'candidate@example.com')->firstOrFail()->role)->toBe(UserRole::Candidate);
+    $user = User::where('email', 'candidate@example.com')->firstOrFail();
+
+    expect($user->role)->toBe(UserRole::Candidate);
+    Notification::assertSentTo($user, VerifyEmail::class);
+});
+
+test('a signed verification link marks the account email as verified', function () {
+    $user = User::factory()->unverified()->create();
+    $verificationUrl = URL::temporarySignedRoute('verification.verify', now()->addMinutes(60), [
+        'id' => $user->id,
+        'hash' => sha1($user->getEmailForVerification()),
+    ]);
+
+    $this->actingAs($user)->get($verificationUrl)->assertRedirect(route('dashboard').'?verified=1');
+
+    expect($user->fresh()->hasVerifiedEmail())->toBeTrue();
 });
 
 test('an employer registration always creates an employer even with a forged role field', function () {
