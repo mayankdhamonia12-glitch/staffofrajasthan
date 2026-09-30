@@ -14,11 +14,13 @@ class Location extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /** @return HasMany<Company, $this> */
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);
     }
 
+    /** @return HasMany<Job, $this> */
     public function jobs(): HasMany
     {
         return $this->hasMany(Job::class);

@@ -56,7 +56,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * These gates allow views and controllers to do:
      *
-     *   @can('access-candidate-area')  or  Gate::allows('access-employer-area')
+     *   Blade's `can` directive with `access-candidate-area`, or `Gate::allows('access-employer-area')` in PHP.
      *
      * Gates are defined here rather than in policies because they are
      * cross-cutting role checks, not model-specific policies.

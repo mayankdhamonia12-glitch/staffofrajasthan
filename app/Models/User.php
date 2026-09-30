@@ -89,12 +89,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * The profile belonging to a candidate account.
+     *
+     * @return HasOne<CandidateProfile, $this>
      */
     public function candidateProfile(): HasOne
     {
         return $this->hasOne(CandidateProfile::class);
     }
 
+    /** @return HasMany<Company, $this> */
     public function companies(): HasMany
     {
         return $this->hasMany(Company::class);

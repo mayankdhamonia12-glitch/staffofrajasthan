@@ -15,21 +15,25 @@ class Company extends Model
         return ['is_visible' => 'boolean'];
     }
 
+    /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
+    /** @return BelongsTo<Industry, $this> */
     public function industry(): BelongsTo
     {
         return $this->belongsTo(Industry::class);
     }
 
+    /** @return BelongsTo<Location, $this> */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
+    /** @return HasMany<Job, $this> */
     public function jobs(): HasMany
     {
         return $this->hasMany(Job::class);

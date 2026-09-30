@@ -14,6 +14,7 @@ class JobCategory extends Model
         return ['is_active' => 'boolean'];
     }
 
+    /** @return HasMany<Job, $this> */
     public function jobs(): HasMany
     {
         return $this->hasMany(Job::class);

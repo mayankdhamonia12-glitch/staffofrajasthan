@@ -14,6 +14,7 @@ class Experience extends Model
         return ['start_date' => 'date', 'end_date' => 'date', 'is_current' => 'boolean'];
     }
 
+    /** @return BelongsTo<CandidateProfile, $this> */
     public function candidateProfile(): BelongsTo
     {
         return $this->belongsTo(CandidateProfile::class);

@@ -104,6 +104,22 @@ test('sorting and layout selection update the directory results', function () {
         ->assertSee('sm:grid-cols-2');
 });
 
+test('the directory paginates job results', function () {
+    foreach (range(1, 13) as $index) {
+        directoryJob([
+            'title' => 'Pagination role '.$index,
+            'published_at' => now()->subMinutes($index),
+        ]);
+    }
+
+    Livewire::test(Index::class)
+        ->assertSee('Pagination role 1')
+        ->assertDontSee('Pagination role 13')
+        ->call('nextPage')
+        ->assertSee('Pagination role 13')
+        ->assertDontSee('Pagination role 1</h3>');
+});
+
 test('homepage features current jobs and real company/category data', function () {
     directoryJob(['title' => 'Rajasthan Operations Lead', 'job' => ['is_featured' => true]]);
 

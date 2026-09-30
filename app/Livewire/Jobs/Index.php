@@ -86,6 +86,7 @@ class Index extends Component
         ]);
     }
 
+    /** @return Builder<Job> */
     private function publishedJobs(): Builder
     {
         $query = Job::query()

@@ -14,6 +14,7 @@ class Education extends Model
         return ['start_date' => 'date', 'end_date' => 'date'];
     }
 
+    /** @return BelongsTo<CandidateProfile, $this> */
     public function candidateProfile(): BelongsTo
     {
         return $this->belongsTo(CandidateProfile::class);

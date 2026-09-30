@@ -16,6 +16,10 @@ class Job extends Model
         return ['application_deadline' => 'date', 'published_at' => 'datetime', 'is_featured' => 'boolean', 'is_urgent' => 'boolean', 'is_filled' => 'boolean'];
     }
 
+    /**
+     * @param  Builder<Job>  $query
+     * @return Builder<Job>
+     */
     public function scopePubliclyAvailable(Builder $query): Builder
     {
         return $query
@@ -26,26 +30,31 @@ class Job extends Model
             ->where(fn (Builder $jobs) => $jobs->whereNull('application_deadline')->orWhereDate('application_deadline', '>=', today()));
     }
 
+    /** @return BelongsTo<Company, $this> */
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
     }
 
+    /** @return BelongsTo<JobCategory, $this> */
     public function category(): BelongsTo
     {
         return $this->belongsTo(JobCategory::class, 'job_category_id');
     }
 
+    /** @return BelongsTo<Industry, $this> */
     public function industry(): BelongsTo
     {
         return $this->belongsTo(Industry::class);
     }
 
+    /** @return BelongsTo<Location, $this> */
     public function location(): BelongsTo
     {
         return $this->belongsTo(Location::class);
     }
 
+    /** @return BelongsToMany<Skill, $this> */
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class);
