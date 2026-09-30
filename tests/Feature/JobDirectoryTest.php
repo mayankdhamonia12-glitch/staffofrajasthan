@@ -121,11 +121,24 @@ test('the directory paginates job results', function () {
 });
 
 test('homepage features current jobs and real company/category data', function () {
-    directoryJob(['title' => 'Rajasthan Operations Lead', 'job' => ['is_featured' => true]]);
+    $job = directoryJob(['title' => 'Rajasthan Operations Lead', 'job' => ['is_featured' => true]]);
 
     $this->get(route('home'))
         ->assertOk()
         ->assertSee('Rajasthan Operations Lead')
         ->assertSee('Example Co')
+        ->assertSee($job->category->name)
+        ->assertSee(route('jobs.index', ['category' => $job->category->slug]))
+        ->assertSee(route('companies.index'))
         ->assertDontSee('Role matched to your skills');
+
+    $this->get(route('companies.index'))
+        ->assertOk()
+        ->assertSee('Example Co')
+        ->assertSee(route('companies.show', $job->company));
+
+    $this->get(route('companies.show', $job->company))
+        ->assertOk()
+        ->assertSee($job->company->name)
+        ->assertSee('Rajasthan Operations Lead');
 });

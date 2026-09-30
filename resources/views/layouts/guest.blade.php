@@ -5,7 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Staff of Rajasthan') }}</title>
+        <meta name="description" content="Sign in or create a Staff of Rajasthan account to explore careers and hiring opportunities.">
+        <meta name="theme-color" content="#1d4ed8">
+        <title>{{ match (request()->route()?->getName()) {
+            'login' => 'Log in | Staff of Rajasthan',
+            'register' => 'Create an account | Staff of Rajasthan',
+            'register.candidate' => 'Candidate registration | Staff of Rajasthan',
+            'register.employer' => 'Employer registration | Staff of Rajasthan',
+            'password.request' => 'Reset your password | Staff of Rajasthan',
+            'password.reset' => 'Choose a new password | Staff of Rajasthan',
+            'verification.notice' => 'Verify your email | Staff of Rajasthan',
+            default => config('app.name', 'Staff of Rajasthan'),
+        } }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -14,12 +25,14 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans text-slate-900 antialiased">
-        <div class="min-h-screen bg-slate-50 px-4 py-10 sm:flex sm:flex-col sm:items-center sm:justify-center">
-            <a href="{{ route('home') }}" class="mb-6 text-center text-xl font-bold tracking-tight text-slate-900">Staff of <span class="text-orange-700">Rajasthan</span></a>
-            <div class="w-full sm:max-w-md rounded-2xl bg-white px-6 py-7 shadow-xl shadow-slate-200/60 sm:px-8">
+    <body class="bg-slate-50 font-sans text-slate-900 antialiased">
+        <a href="#main-content" class="sr-only z-50 rounded-lg bg-white px-4 py-3 font-semibold text-brand-800 shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+        <x-public-header />
+        <main id="main-content" class="mx-auto flex min-h-[60vh] w-full max-w-7xl flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
+            <div class="w-full max-w-md rounded-3xl border border-slate-200 bg-white px-6 py-8 shadow-xl shadow-slate-900/5 sm:px-9">
                 {{ $slot }}
             </div>
-        </div>
+        </main>
+        <x-public-footer />
     </body>
 </html>

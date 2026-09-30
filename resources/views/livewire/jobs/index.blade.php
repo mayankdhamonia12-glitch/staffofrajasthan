@@ -45,14 +45,14 @@
             </div>
 
             <div>
-                <div wire:loading.delay class="mb-4 rounded-lg bg-blue-50 px-4 py-3 text-sm font-medium text-blue-800" role="status">Updating job results…</div>
+                <x-ui.loading wire:loading.delay class="mb-4">Updating job results…</x-ui.loading>
                 @if ($jobs->isEmpty())
                     <div class="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center"><span class="mx-auto grid h-14 w-14 place-items-center rounded-full bg-slate-100 text-2xl text-slate-500">⌕</span><h2 class="mt-5 text-xl font-bold text-slate-900">No matching jobs yet</h2><p class="mt-2 text-slate-600">Try another keyword or clear some filters to see more opportunities.</p><button wire:click="clearFilters" class="mt-5 rounded-lg bg-blue-700 px-4 py-2.5 font-semibold text-white hover:bg-blue-800">Clear filters</button></div>
                 @else
                     <div class="grid gap-4 {{ $view === 'grid' ? 'sm:grid-cols-2' : '' }}">
                         @foreach ($jobs as $job)<x-job-card :job="$job" :layout="$view" />@endforeach
                     </div>
-                    <div class="mt-7">{{ $jobs->links() }}</div>
+                    <x-ui.pagination :paginator="$jobs" />
                 @endif
             </div>
         </div>

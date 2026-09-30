@@ -1,10 +1,11 @@
 <x-guest-layout>
+    <div class="mb-5"><p class="text-sm font-bold uppercase tracking-[.14em] text-brand-700">Create your account</p><h1 class="mt-2 text-2xl font-bold tracking-tight text-slate-950">Join Staff of Rajasthan</h1></div>
     <form method="POST" action="{{ $formAction }}">
         @csrf
 
         <p class="mb-5 text-sm text-slate-600">
             Create your {{ $role->value === 'candidate' ? 'job seeker' : 'employer' }} account.
-            <a class="font-semibold text-orange-700 hover:text-orange-800" href="{{ route('register') }}">Choose another account type</a>
+            <a class="font-semibold text-brand-700 hover:text-brand-900" href="{{ route('register') }}">Choose another account type</a>
         </p>
 
         <!-- Name -->
@@ -41,7 +42,7 @@
         </div>
 
         <div class="flex items-center justify-end mt-4">
-            <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('login') }}">
+            <a class="rounded-md text-sm font-medium text-brand-700 underline-offset-4 hover:text-brand-900 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-600" href="{{ route('login') }}">
                 {{ __('Already registered?') }}
             </a>
 

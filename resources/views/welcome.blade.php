@@ -1,49 +1,130 @@
 @extends('layouts.public')
 
-@section('title', 'Find Jobs in Rajasthan | Staff of Rajasthan')
+@section('title', 'Find Your Next Job in Rajasthan | Staff of Rajasthan')
+@section('description', 'Discover current jobs, growing employers, and career opportunities across Rajasthan.')
 
 @section('content')
-    <section class="bg-blue-50">
-        <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.15fr_.85fr] lg:px-8 lg:py-24">
-            <div>
-                <p class="inline-flex rounded-full bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm">Your next opportunity starts here</p>
-                <h1 class="mt-6 max-w-2xl text-4xl font-extrabold tracking-tight text-slate-950 sm:text-6xl">Find a job that moves you forward</h1>
-                <p class="mt-5 max-w-xl text-lg leading-8 text-slate-600">Discover meaningful work and growing teams across Rajasthan.</p>
-                <form class="mt-8 grid gap-3 rounded-2xl bg-white p-3 shadow-lg shadow-blue-900/5 sm:grid-cols-[1fr_1fr_auto]" action="{{ route('jobs.index') }}" method="GET" role="search">
-                    <label class="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3"><span class="text-blue-600" aria-hidden="true">⌕</span><span class="sr-only">Job title or keyword</span><input class="w-full border-0 p-0 text-sm focus:ring-0" name="keyword" placeholder="Job title or keyword"></label>
-                    <label class="flex items-center gap-3 rounded-xl border border-slate-200 px-4 py-3 sm:border-l"><span class="text-blue-600" aria-hidden="true">⌖</span><span class="sr-only">Location</span><input class="w-full border-0 p-0 text-sm focus:ring-0" name="location" placeholder="City or location"></label>
-                    <button type="submit" class="rounded-xl bg-blue-700 px-6 py-3 text-sm font-bold text-white transition hover:bg-blue-800">Search jobs</button>
-                </form>
-                <div class="mt-5 flex flex-wrap items-center gap-2 text-sm"><span class="font-semibold text-slate-600">Popular searches:</span>@foreach ([['Jaipur', ['location' => 'Jaipur']], ['IT & Software', ['category' => 'it-software']], ['Sales', ['keyword' => 'Sales']], ['Remote', ['keyword' => 'remote']]] as [$label, $query])<a class="rounded-full border border-blue-200 bg-white px-3 py-1.5 text-blue-700 hover:border-blue-400" href="{{ route('jobs.index', $query) }}">{{ $label }}</a>@endforeach</div>
+    <section class="relative isolate overflow-hidden bg-[#f3f7ff]">
+        <div aria-hidden="true" class="absolute inset-0 -z-10 overflow-hidden">
+            <div class="absolute -right-36 -top-48 h-[34rem] w-[34rem] rounded-full bg-brand-100/70 blur-3xl"></div>
+            <div class="absolute -bottom-48 left-1/4 h-80 w-80 rounded-full bg-white/80 blur-3xl"></div>
+            <div class="absolute inset-0 opacity-[.18] [background-image:radial-gradient(#1d4ed8_1px,transparent_1px)] [background-size:24px_24px]"></div>
+        </div>
+        <div class="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 sm:px-6 sm:py-20 lg:grid-cols-[1.08fr_.92fr] lg:px-8 lg:py-24">
+            <div class="relative z-10">
+                <x-ui.badge><span class="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-brand-600"></span>Careers rooted in Rajasthan</x-ui.badge>
+                <h1 class="mt-6 max-w-3xl text-4xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-5xl lg:text-[3.75rem]">Find a job that moves you <span class="text-brand-700">forward.</span></h1>
+                <p class="mt-5 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">Explore real opportunities from employers across Rajasthan and take the next step in your career.</p>
+
+                <div class="mt-8 max-w-3xl">
+                    <x-search-form :action="route('jobs.index')" />
+                </div>
+
+                <div class="mt-5 flex flex-wrap items-center gap-2.5" aria-label="Popular job searches">
+                    <span class="mr-1 text-sm font-semibold text-slate-600">Explore:</span>
+                    @forelse ($popularLocations->take(2) as $location)
+                        <x-ui.chip :href="route('jobs.index', ['location' => $location->name])">{{ $location->name }}</x-ui.chip>
+                    @empty
+                    @endforelse
+                    @foreach ($categories->take(3) as $category)
+                        <x-ui.chip :href="route('jobs.index', ['category' => $category->slug])">{{ $category->name }}</x-ui.chip>
+                    @endforeach
+                    @if ($popularLocations->isEmpty() && $categories->isEmpty())
+                        <x-ui.chip :href="route('jobs.index')">Browse all jobs</x-ui.chip>
+                    @endif
+                </div>
             </div>
-            <div class="relative mx-auto w-full max-w-lg">
-                <div class="absolute -inset-4 rounded-[2.5rem] bg-blue-100/80"></div>
-                <div class="relative rounded-[2rem] border border-white bg-white p-7 shadow-xl sm:p-9">
-                    <div class="flex items-center justify-between"><span class="font-bold text-slate-900">Rajasthan opportunities</span><span class="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">Live platform</span></div>
-                    <div class="mt-7 grid grid-cols-2 gap-4"><div class="rounded-2xl bg-blue-50 p-5"><p class="text-3xl font-extrabold text-blue-700">{{ number_format($jobCount) }}</p><p class="mt-1 text-sm text-slate-600">Open jobs</p></div><div class="rounded-2xl bg-slate-50 p-5"><p class="text-3xl font-extrabold text-slate-900">{{ number_format($categoryCount) }}</p><p class="mt-1 text-sm text-slate-600">Career fields</p></div></div>
-                    <div class="mt-6 space-y-3"><div class="flex items-center gap-3 rounded-xl border border-slate-100 p-3"><span class="grid h-10 w-10 place-items-center rounded-lg bg-amber-50 text-amber-700">✦</span><div><p class="text-sm font-semibold">Real employer listings</p><p class="text-xs text-slate-500">Published and current opportunities</p></div></div><div class="flex items-center gap-3 rounded-xl border border-slate-100 p-3"><span class="grid h-10 w-10 place-items-center rounded-lg bg-emerald-50 text-emerald-700">⌖</span><div><p class="text-sm font-semibold">Rooted in Rajasthan</p><p class="text-xs text-slate-500">Roles from local companies and teams</p></div></div></div>
+
+            <div class="relative mx-auto w-full max-w-[550px] lg:ml-auto" aria-label="Rajasthan career opportunities">
+                <div aria-hidden="true" class="absolute left-1/2 top-1/2 aspect-square w-[82%] -translate-x-1/2 -translate-y-1/2 rounded-[42%] bg-gradient-to-br from-brand-200 via-brand-100 to-white"></div>
+                <div aria-hidden="true" class="absolute left-[11%] top-[17%] h-16 w-16 rounded-2xl border border-white/80 bg-white/70 shadow-sm rotate-[-12deg]"></div>
+                <div aria-hidden="true" class="absolute bottom-[12%] right-[8%] h-24 w-24 rounded-full border-[18px] border-white/60"></div>
+                <div class="relative mx-auto max-w-[430px] rounded-[2rem] border border-white/90 bg-white/90 p-5 shadow-[0_30px_90px_-40px_rgba(30,64,175,.42)] backdrop-blur sm:p-7">
+                    <div class="flex items-center justify-between gap-4">
+                        <div><p class="text-xs font-bold uppercase tracking-[.16em] text-brand-700">Your next chapter</p><p class="mt-1 text-lg font-bold text-slate-950 sm:text-xl">Start with the right opportunity</p></div>
+                        <span aria-hidden="true" class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-brand-50 text-brand-700"><svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19.5h16M6.5 16V9.5L12 5l5.5 4.5V16M9.5 16v-3.5h5V16" /></svg></span>
+                    </div>
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <div class="rounded-2xl bg-brand-50 p-4 sm:p-5"><p class="text-3xl font-extrabold tracking-tight text-brand-800">{{ number_format($jobCount) }}</p><p class="mt-1 text-sm font-medium text-slate-600">Open opportunities</p></div>
+                        <div class="rounded-2xl bg-slate-50 p-4 sm:p-5"><p class="text-3xl font-extrabold tracking-tight text-slate-900">{{ number_format($categoryCount) }}</p><p class="mt-1 text-sm font-medium text-slate-600">Career categories</p></div>
+                    </div>
+                    <div class="mt-4 rounded-2xl border border-slate-100 p-4 sm:p-5">
+                        <div class="flex items-center justify-between"><p class="font-bold text-slate-900">A better way to find work</p><span aria-hidden="true" class="text-brand-700">✦</span></div>
+                        <div class="mt-4 space-y-3">
+                            <div class="flex items-center gap-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-emerald-50 text-emerald-700" aria-hidden="true">✓</span><div><p class="text-sm font-semibold text-slate-800">Current employer listings</p><p class="text-xs text-slate-500">Only roles published on the platform</p></div></div>
+                            <div class="flex items-center gap-3"><span class="grid h-9 w-9 place-items-center rounded-xl bg-amber-50 text-amber-700" aria-hidden="true">⌖</span><div><p class="text-sm font-semibold text-slate-800">Local opportunities</p><p class="text-xs text-slate-500">Focused on Rajasthan’s workforce</p></div></div>
+                        </div>
+                    </div>
+                    <a href="{{ route('jobs.index') }}" class="mt-4 flex items-center justify-between rounded-xl px-1 py-2 text-sm font-bold text-brand-700 hover:text-brand-900">Explore the job directory <span aria-hidden="true">→</span></a>
+                </div>
+                <div class="absolute -left-2 top-1/2 hidden -translate-x-1/4 -translate-y-1/2 rounded-2xl border border-slate-100 bg-white p-4 shadow-xl sm:block lg:-left-5">
+                    <span class="grid h-10 w-10 place-items-center rounded-xl bg-amber-50 text-amber-700" aria-hidden="true">✦</span>
+                    <p class="mt-2 text-xs font-bold text-slate-800">Built for your next move</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="categories" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-        <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-wider text-blue-700">Find your field</p><h2 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Popular categories</h2><p class="mt-2 text-slate-600">Explore active career areas and their current openings.</p></div><a href="{{ route('jobs.index') }}" class="font-semibold text-blue-700 hover:text-blue-900">Browse all jobs <span aria-hidden="true">→</span></a></div>
-        @if ($categories->isEmpty())<div class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">Categories will appear as the job board is configured.</div>@else<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($categories as $category)<x-category-card :category="$category" />@endforeach</div>@endif
+    <section id="categories" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <x-ui.section-heading eyebrow="Find your field" title="Explore popular categories" description="Browse career areas with current openings from employers across Rajasthan." :link="route('jobs.index')" link-text="Browse all jobs" />
+        @if ($categories->isEmpty())
+            <x-ui.empty-state class="mt-8" title="Categories are taking shape" description="Job categories will appear here as employers publish opportunities. In the meantime, you can browse all current listings." :action="route('jobs.index')" action-text="Browse jobs" icon="▦" />
+        @else
+            <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($categories as $category)<x-category-card :category="$category" />@endforeach</div>
+        @endif
     </section>
 
-    <section id="jobs" class="bg-white"><div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-        <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-wider text-blue-700">Handpicked opportunities</p><h2 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Featured jobs</h2></div><a href="{{ route('jobs.index') }}" class="font-semibold text-blue-700 hover:text-blue-900">See all jobs <span aria-hidden="true">→</span></a></div>
-        @if ($featuredJobs->isEmpty())<div class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8 text-center"><p class="font-semibold text-slate-800">No featured jobs are published yet.</p><p class="mt-1 text-sm text-slate-500">Check the latest opportunities or return soon.</p></div>@else<div class="mt-8 grid gap-4 lg:grid-cols-3">@foreach ($featuredJobs as $job)<x-job-card :job="$job" />@endforeach</div>@endif
-    </div></section>
-
-    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-wider text-blue-700">Recently published</p><h2 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Latest jobs</h2></div><a href="{{ route('jobs.index') }}" class="font-semibold text-blue-700 hover:text-blue-900">Browse the job directory <span aria-hidden="true">→</span></a></div>
-        @if ($latestJobs->isEmpty())<div class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center"><p class="font-semibold text-slate-800">There are no current job listings.</p><p class="mt-1 text-sm text-slate-500">New employer listings will appear here when they are published.</p></div>@else<div class="mt-8 grid gap-4">@foreach ($latestJobs as $job)<x-job-card :job="$job" layout="list" />@endforeach</div>@endif
+    <section id="jobs" class="border-y border-slate-100 bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+            <x-ui.section-heading eyebrow="Handpicked opportunities" title="Featured jobs" description="Standout roles from employers hiring right now." :link="route('jobs.index')" link-text="See all jobs" />
+            @if ($featuredJobs->isEmpty())
+                <x-ui.empty-state class="mt-8" title="No featured jobs just yet" description="Featured roles will show here when employers publish them. Browse the full directory for current opportunities." :action="route('jobs.index')" action-text="Explore jobs" icon="✦" />
+            @else
+                <div class="mt-8 grid gap-4 lg:grid-cols-3">@foreach ($featuredJobs as $job)<x-job-card :job="$job" />@endforeach</div>
+            @endif
+        </div>
     </section>
 
-    <section id="companies" class="bg-slate-100"><div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"><div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-bold uppercase tracking-wider text-blue-700">Meet the teams</p><h2 class="mt-2 text-3xl font-extrabold tracking-tight text-slate-950">Popular employers</h2></div><span class="text-sm text-slate-500">Companies with published opportunities</span></div>
-        @if ($companies->isEmpty())<div class="mt-8 rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-slate-600">Employer profiles will appear here when companies publish jobs.</div>@else<div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($companies as $company)<article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-blue-50 font-bold text-blue-700">@if ($company->logo_path)<img class="h-full w-full object-cover" src="{{ \Illuminate\Support\Facades\Storage::disk('public')->url($company->logo_path) }}" alt="{{ $company->name }} logo">@else{{ mb_substr($company->name, 0, 1) }}@endif</div><h3 class="mt-4 font-bold text-slate-950">{{ $company->name }}</h3><p class="mt-1 text-sm text-slate-500">{{ $company->industry?->name ?? 'Employer' }}{{ $company->location?->name ? ' · '.$company->location->name : '' }}</p><p class="mt-4 text-sm font-semibold text-blue-700">{{ number_format($company->jobs_count) }} {{ \Illuminate\Support\Str::plural('open role', $company->jobs_count) }}</p></article>@endforeach</div>@endif
-    </div></section>
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <x-ui.section-heading eyebrow="Recently published" title="The latest opportunities" description="Fresh listings from companies across Rajasthan." :link="route('jobs.index')" link-text="Browse the job directory" />
+        @if ($latestJobs->isEmpty())
+            <x-ui.empty-state class="mt-8" title="There are no current job listings" description="New employer listings will appear here when they are published. Check back soon or explore how to get started." :action="route('register.candidate')" action-text="Create candidate account" icon="⌕" />
+        @else
+            <div class="mt-8 grid gap-4">@foreach ($latestJobs as $job)<x-job-card :job="$job" layout="list" />@endforeach</div>
+        @endif
+    </section>
 
-    <section id="about" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20"><div class="grid gap-5 lg:grid-cols-2"><article class="rounded-3xl bg-blue-700 p-8 text-white sm:p-10"><p class="text-sm font-bold uppercase tracking-wider text-blue-100">For job seekers</p><h2 class="mt-3 text-3xl font-extrabold">Make your next move count.</h2><p class="mt-3 max-w-lg leading-7 text-blue-50">Build a candidate profile, add your resume and skills, and explore real opportunities across Rajasthan.</p><a href="{{ route('register.candidate') }}" class="mt-6 inline-flex rounded-lg bg-white px-5 py-3 font-bold text-blue-800 transition hover:bg-blue-50">Create candidate account</a></article><article class="rounded-3xl border border-slate-200 bg-white p-8 sm:p-10"><p class="text-sm font-bold uppercase tracking-wider text-blue-700">For employers</p><h2 class="mt-3 text-3xl font-extrabold text-slate-950">Meet the people who move your business forward.</h2><p class="mt-3 max-w-lg leading-7 text-slate-600">Create an employer account and prepare your company profile for the upcoming hiring tools.</p><a href="{{ route('register.employer') }}" class="mt-6 inline-flex rounded-lg bg-blue-700 px-5 py-3 font-bold text-white transition hover:bg-blue-800">Create employer account</a></article></div></section>
+    <section id="companies" class="bg-[#f3f7ff]">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+            <x-ui.section-heading eyebrow="Meet the teams" title="Employers to know" description="Discover companies with current open roles." :link="route('companies.index')" link-text="Explore companies" />
+            @if ($companies->isEmpty())
+                <x-ui.empty-state class="mt-8" title="Company profiles are on the way" description="Employer cards will appear here when visible company profiles have published jobs." :action="route('register.employer')" action-text="Create employer account" icon="⌂" />
+            @else
+                <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">@foreach ($companies as $company)<x-company-card :company="$company" />@endforeach</div>
+            @endif
+        </div>
+    </section>
+
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+        <x-ui.section-heading eyebrow="Start today" title="A better next step starts here" description="Whether you’re exploring a new role or building a team, Staff of Rajasthan is here to help you move forward." />
+        <div class="mt-8 grid gap-5 lg:grid-cols-2">
+            <article class="relative overflow-hidden rounded-3xl bg-brand-800 p-7 text-white shadow-lg shadow-brand-900/10 sm:p-10">
+                <div aria-hidden="true" class="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[30px] border-white/10"></div>
+                <p class="text-sm font-bold uppercase tracking-[.14em] text-brand-200">For candidates</p><h3 class="mt-3 max-w-md text-3xl font-extrabold tracking-tight sm:text-4xl">Find your next opportunity</h3><p class="mt-3 max-w-lg leading-7 text-blue-100">Create your profile, add your experience, and discover roles that match your goals.</p>
+                <x-ui.button :href="route('register.candidate')" variant="secondary" class="mt-6">Create candidate account <span aria-hidden="true">→</span></x-ui.button>
+            </article>
+            <article class="relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-10">
+                <div aria-hidden="true" class="absolute -right-16 -top-16 h-56 w-56 rounded-full border-[30px] border-brand-50"></div>
+                <p class="text-sm font-bold uppercase tracking-[.14em] text-brand-700">For employers</p><h3 class="mt-3 max-w-md text-3xl font-extrabold tracking-tight text-slate-950 sm:text-4xl">Find the talent your business needs</h3><p class="mt-3 max-w-lg leading-7 text-slate-600">Join the platform and get ready to connect with people building their careers in Rajasthan.</p>
+                <x-ui.button :href="route('register.employer')" class="mt-6">Create employer account <span aria-hidden="true">→</span></x-ui.button>
+            </article>
+        </div>
+    </section>
+
+    <section class="border-t border-slate-100 bg-white">
+        <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+            <x-ui.section-heading eyebrow="Career resources" title="Ideas for your next move" description="Practical insights for candidates and employers will live here." :link="route('blog.index')" link-text="Visit the blog" />
+            <x-ui.empty-state class="mt-8" title="The blog is coming soon" description="We’re preparing useful career and hiring resources. No articles have been published yet." :action="route('blog.index')" action-text="Learn about the platform" icon="✎" />
+        </div>
+    </section>
 @endsection
