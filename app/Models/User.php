@@ -103,6 +103,18 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Company::class);
     }
 
+    /** @return HasMany<SavedJob, $this> */
+    public function savedJobs(): HasMany
+    {
+        return $this->hasMany(SavedJob::class);
+    }
+
+    /** @return HasMany<JobApplication, $this> */
+    public function jobApplications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
+    }
+
     /**
      * Get the user's initials
      */

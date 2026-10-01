@@ -1,7 +1,10 @@
 <?php
 
+use App\Http\Controllers\CandidateDashboardController;
 use App\Http\Controllers\CandidateProfileController;
+use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
@@ -16,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', HomeController::class)->name('home');
 Route::view('/jobs', 'jobs.index')->name('jobs.index');
 Route::get('/jobs/{job:slug}', [JobController::class, 'show'])->name('jobs.show');
+Route::get('/jobs/{job:slug}/apply', [JobApplicationController::class, 'create'])->middleware(['auth', 'role:candidate'])->name('jobs.apply');
+Route::post('/jobs/{job:slug}/apply', [JobApplicationController::class, 'store'])->middleware(['auth', 'role:candidate'])->name('jobs.apply.store');
 Route::get('/candidates', [PublicPageController::class, 'candidates'])->name('candidates.index');
 Route::get('/companies', [PublicPageController::class, 'companies'])->name('companies.index');
 Route::get('/companies/{company:slug}', [PublicPageController::class, 'showCompany'])->name('companies.show');
@@ -66,7 +71,10 @@ Route::middleware('auth')->group(function () {
 */
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
-    Route::view('/dashboard', 'candidate.dashboard')->name('dashboard');
+    Route::get('/dashboard', CandidateDashboardController::class)->name('dashboard');
+    Route::get('/saved-jobs', [CandidateSavedJobsController::class, 'index'])->name('saved-jobs.index');
+    Route::delete('/saved-jobs/{savedJob}', [CandidateSavedJobsController::class, 'destroy'])->name('saved-jobs.destroy');
+    Route::post('/jobs/{job:slug}/save', [CandidateSavedJobsController::class, 'store'])->name('jobs.save');
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
     Route::post('/resume', [CandidateProfileController::class, 'uploadResume'])->name('resume.store');

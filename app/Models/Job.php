@@ -2,11 +2,17 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property CarbonImmutable|null $application_deadline
+ * @property CarbonImmutable|null $published_at
+ */
 class Job extends Model
 {
     protected $fillable = ['job_category_id', 'industry_id', 'location_id', 'title', 'slug', 'description', 'responsibilities', 'requirements', 'employment_type', 'experience_level', 'salary_min', 'salary_max', 'salary_currency', 'salary_period', 'vacancies', 'application_deadline', 'status', 'is_featured', 'is_urgent', 'is_filled', 'published_at'];
@@ -58,5 +64,17 @@ class Job extends Model
     public function skills(): BelongsToMany
     {
         return $this->belongsToMany(Skill::class);
+    }
+
+    /** @return HasMany<SavedJob, $this> */
+    public function savedBy(): HasMany
+    {
+        return $this->hasMany(SavedJob::class);
+    }
+
+    /** @return HasMany<JobApplication, $this> */
+    public function applications(): HasMany
+    {
+        return $this->hasMany(JobApplication::class);
     }
 }
