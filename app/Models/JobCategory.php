@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JobCategory extends Model
@@ -18,5 +19,11 @@ class JobCategory extends Model
     public function jobs(): HasMany
     {
         return $this->hasMany(Job::class);
+    }
+
+    /** @return BelongsToMany<CandidateProfile, $this> */
+    public function candidateProfiles(): BelongsToMany
+    {
+        return $this->belongsToMany(CandidateProfile::class, 'candidate_profile_job_category');
     }
 }

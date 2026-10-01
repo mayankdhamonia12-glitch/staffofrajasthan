@@ -14,6 +14,11 @@
             </div>
         </section>
 
+        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-sm font-semibold text-brand-700">Your candidate profile</p><h2 class="mt-1 text-xl font-bold">{{ $candidateProfile->headline ?: 'Add your professional headline' }}</h2><p class="mt-1 text-sm text-slate-600">{{ $candidateProfile->is_public ? 'Your profile is visible in the public directory.' : 'Your profile is private until you choose to make it public.' }}</p></div><a href="{{ route('candidate.profile.edit') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Complete profile</a></div>
+            <div class="mt-5"><div class="flex justify-between text-sm"><span class="font-medium">Profile completeness</span><span>{{ $profileCompletion }}%</span></div><div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-700" style="width: {{ $profileCompletion }}%"></div></div></div>
+        </section>
+
         <section class="grid gap-4 sm:grid-cols-2">
             <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                 <p class="text-sm font-medium text-slate-500">Saved open jobs</p>

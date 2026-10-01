@@ -7,11 +7,6 @@ use Illuminate\View\View;
 
 class PublicPageController extends Controller
 {
-    public function candidates(): View
-    {
-        return view('public.candidates');
-    }
-
     public function companies(): View
     {
         $companies = Company::query()

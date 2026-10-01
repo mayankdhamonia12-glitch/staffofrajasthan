@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\CandidateDashboardController;
+use App\Http\Controllers\CandidateDirectoryController;
 use App\Http\Controllers\CandidateProfileController;
+use App\Http\Controllers\CandidateProfileResourceController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
@@ -21,7 +23,9 @@ Route::view('/jobs', 'jobs.index')->name('jobs.index');
 Route::get('/jobs/{job:slug}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/jobs/{job:slug}/apply', [JobApplicationController::class, 'create'])->middleware(['auth', 'role:candidate'])->name('jobs.apply');
 Route::post('/jobs/{job:slug}/apply', [JobApplicationController::class, 'store'])->middleware(['auth', 'role:candidate'])->name('jobs.apply.store');
-Route::get('/candidates', [PublicPageController::class, 'candidates'])->name('candidates.index');
+Route::get('/candidates', [CandidateDirectoryController::class, 'index'])->name('candidates.index');
+Route::get('/candidates/{candidate:slug}/photo', [CandidateDirectoryController::class, 'photo'])->name('candidates.photo');
+Route::get('/candidates/{candidate:slug}', [CandidateDirectoryController::class, 'show'])->name('candidates.show');
 Route::get('/companies', [PublicPageController::class, 'companies'])->name('companies.index');
 Route::get('/companies/{company:slug}', [PublicPageController::class, 'showCompany'])->name('companies.show');
 Route::get('/blog', [PublicPageController::class, 'blog'])->name('blog.index');
@@ -77,9 +81,29 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::post('/jobs/{job:slug}/save', [CandidateSavedJobsController::class, 'store'])->name('jobs.save');
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
+    Route::get('/profile/photo', [CandidateProfileController::class, 'photo'])->name('profile.photo');
+    Route::post('/profile/photo', [CandidateProfileController::class, 'uploadPhoto'])->name('profile.photo.store');
+    Route::delete('/profile/photo', [CandidateProfileController::class, 'deletePhoto'])->name('profile.photo.destroy');
     Route::post('/resume', [CandidateProfileController::class, 'uploadResume'])->name('resume.store');
+    Route::get('/resume', [CandidateProfileController::class, 'downloadResume'])->name('resume.download');
+    Route::delete('/resume', [CandidateProfileController::class, 'deleteResume'])->name('resume.destroy');
     Route::post('/skills', [CandidateProfileController::class, 'addSkill'])->name('skills.store');
     Route::delete('/skills/{skill}', [CandidateProfileController::class, 'removeSkill'])->name('skills.destroy');
+    Route::post('/education', [CandidateProfileResourceController::class, 'storeEducation'])->name('educations.store');
+    Route::put('/education/{education}', [CandidateProfileResourceController::class, 'updateEducation'])->name('educations.update');
+    Route::delete('/education/{education}', [CandidateProfileResourceController::class, 'destroyEducation'])->name('educations.destroy');
+    Route::post('/experience', [CandidateProfileResourceController::class, 'storeExperience'])->name('experiences.store');
+    Route::put('/experience/{experience}', [CandidateProfileResourceController::class, 'updateExperience'])->name('experiences.update');
+    Route::delete('/experience/{experience}', [CandidateProfileResourceController::class, 'destroyExperience'])->name('experiences.destroy');
+    Route::post('/languages', [CandidateProfileResourceController::class, 'storeLanguage'])->name('languages.store');
+    Route::put('/languages/{language}', [CandidateProfileResourceController::class, 'updateLanguage'])->name('languages.update');
+    Route::delete('/languages/{language}', [CandidateProfileResourceController::class, 'destroyLanguage'])->name('languages.destroy');
+    Route::post('/portfolio', [CandidateProfileResourceController::class, 'storePortfolio'])->name('portfolios.store');
+    Route::put('/portfolio/{portfolio}', [CandidateProfileResourceController::class, 'updatePortfolio'])->name('portfolios.update');
+    Route::delete('/portfolio/{portfolio}', [CandidateProfileResourceController::class, 'destroyPortfolio'])->name('portfolios.destroy');
+    Route::post('/awards', [CandidateProfileResourceController::class, 'storeAward'])->name('awards.store');
+    Route::put('/awards/{award}', [CandidateProfileResourceController::class, 'updateAward'])->name('awards.update');
+    Route::delete('/awards/{award}', [CandidateProfileResourceController::class, 'destroyAward'])->name('awards.destroy');
 });
 
 /*

@@ -5,15 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Education extends Model
+class CandidateAward extends Model
 {
-    protected $table = 'educations';
-
-    protected $fillable = ['institution', 'qualification', 'field_of_study', 'start_date', 'end_date', 'currently_studying', 'description'];
+    protected $fillable = ['title', 'issuer', 'awarded_at', 'description'];
 
     protected function casts(): array
     {
-        return ['start_date' => 'date', 'end_date' => 'date', 'currently_studying' => 'boolean'];
+        return ['awarded_at' => 'date'];
     }
 
     /** @return BelongsTo<CandidateProfile, $this> */
