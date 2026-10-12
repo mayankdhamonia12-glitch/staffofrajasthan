@@ -33,7 +33,17 @@ class Job extends Model
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->where('is_filled', false)
+            ->whereHas('company', fn (Builder $companies) => $companies->where('is_visible', true))
             ->where(fn (Builder $jobs) => $jobs->whereNull('application_deadline')->orWhereDate('application_deadline', '>=', today()));
+    }
+
+    /**
+     * @param  Builder<Job>  $query
+     * @return Builder<Job>
+     */
+    public function scopeOwnedByEmployer(Builder $query, User $employer): Builder
+    {
+        return $query->whereHas('company', fn (Builder $companies) => $companies->where('user_id', $employer->getKey()));
     }
 
     /** @return BelongsTo<Company, $this> */

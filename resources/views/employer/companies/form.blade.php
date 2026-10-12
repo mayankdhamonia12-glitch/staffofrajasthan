@@ -1,9 +1,5 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div><p class="text-sm font-medium text-brand-700">Employer workspace</p><h2 class="mt-1 text-2xl font-bold text-slate-950">{{ isset($company) ? 'Edit company profile' : 'Create company profile' }}</h2></div>
-    </x-slot>
-
-    <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+<x-employer-dashboard-layout :title="isset($company) ? 'Edit Company Profile' : 'Create Company Profile'" active="companies" subtitle="Share accurate company details with candidates.">
+    <div class="mx-auto w-full max-w-5xl space-y-5">
         @if (session('status'))<div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{{ session('status') }}</div>@endif
         @if ($errors->any())<div class="mb-6 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><p class="font-semibold">Please review the highlighted fields.</p><ul class="mt-2 list-disc pl-5">@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
         <form method="POST" enctype="multipart/form-data" action="{{ isset($company) ? route('employer.companies.update', $company) : route('employer.companies.store') }}" class="space-y-6">
@@ -25,4 +21,4 @@
             <div class="flex flex-wrap items-center gap-3"><button class="rounded-xl bg-brand-700 px-5 py-3 text-sm font-semibold text-white hover:bg-brand-800">{{ isset($company) ? 'Save changes' : 'Create company profile' }}</button><a href="{{ route('employer.companies.index') }}" class="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:border-brand-300">Cancel</a></div>
         </form>
     </div>
-</x-app-layout>
+</x-employer-dashboard-layout>

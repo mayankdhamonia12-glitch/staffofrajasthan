@@ -18,7 +18,11 @@ class EmployerCompanyController extends Controller
 {
     public function index(Request $request): View
     {
-        $companies = $request->user()->companies()->with(['industry', 'location'])->latest()->get();
+        $companies = $request->user()->companies()
+            ->with(['industry', 'location'])
+            ->withCount(['jobs as published_jobs_count' => fn ($jobs) => $jobs->publiclyAvailable()])
+            ->latest()
+            ->get();
 
         return view('employer.companies.index', compact('companies'));
     }

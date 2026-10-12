@@ -10,11 +10,14 @@ use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
 use App\Http\Controllers\EmployerCompanyController;
+use App\Http\Controllers\EmployerDashboardController;
+use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
+use App\Livewire\Employer\Jobs\Index as EmployerJobsIndex;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -125,7 +128,14 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 */
 
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
-    Route::view('/dashboard', 'employer.dashboard')->name('dashboard');
+    Route::get('/dashboard', EmployerDashboardController::class)->name('dashboard');
+    Route::get('/jobs', EmployerJobsIndex::class)->name('jobs.index');
+    Route::get('/jobs/create', [EmployerJobController::class, 'create'])->name('jobs.create');
+    Route::post('/jobs', [EmployerJobController::class, 'store'])->name('jobs.store');
+    Route::get('/jobs/{job}/edit', [EmployerJobController::class, 'edit'])->name('jobs.edit');
+    Route::patch('/jobs/{job}', [EmployerJobController::class, 'update'])->name('jobs.update');
+    Route::post('/jobs/{job}/duplicate', [EmployerJobController::class, 'duplicate'])->name('jobs.duplicate');
+    Route::patch('/jobs/{job}/lifecycle', [EmployerJobController::class, 'lifecycle'])->name('jobs.lifecycle');
     Route::get('/companies', [EmployerCompanyController::class, 'index'])->name('companies.index');
     Route::get('/companies/create', [EmployerCompanyController::class, 'create'])->name('companies.create');
     Route::post('/companies', [EmployerCompanyController::class, 'store'])->name('companies.store');
