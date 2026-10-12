@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -9,11 +10,25 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Company extends Model
 {
-    protected $fillable = ['industry_id', 'location_id', 'name', 'slug', 'email', 'phone', 'website', 'logo_path', 'cover_path', 'description', 'company_size', 'is_visible'];
+    protected $fillable = [
+        'industry_id', 'location_id', 'name', 'slug', 'email', 'phone', 'website',
+        'linkedin_url', 'facebook_url', 'twitter_url', 'instagram_url',
+        'logo_path', 'cover_path', 'description', 'address', 'company_size',
+        'founded_year', 'is_visible',
+    ];
 
     protected function casts(): array
     {
-        return ['is_visible' => 'boolean'];
+        return ['is_visible' => 'boolean', 'founded_year' => 'integer'];
+    }
+
+    /**
+     * @param  Builder<Company>  $query
+     * @return Builder<Company>
+     */
+    public function scopePubliclyVisible(Builder $query): Builder
+    {
+        return $query->where('is_visible', true);
     }
 
     /** @return BelongsTo<User, $this> */

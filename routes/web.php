@@ -9,6 +9,7 @@ use App\Http\Controllers\CandidateProfileResourceController;
 use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
+use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
@@ -125,6 +126,11 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
     Route::view('/dashboard', 'employer.dashboard')->name('dashboard');
+    Route::get('/companies', [EmployerCompanyController::class, 'index'])->name('companies.index');
+    Route::get('/companies/create', [EmployerCompanyController::class, 'create'])->name('companies.create');
+    Route::post('/companies', [EmployerCompanyController::class, 'store'])->name('companies.store');
+    Route::get('/companies/{company}/edit', [EmployerCompanyController::class, 'edit'])->name('companies.edit');
+    Route::patch('/companies/{company}', [EmployerCompanyController::class, 'update'])->name('companies.update');
 });
 
 /*
