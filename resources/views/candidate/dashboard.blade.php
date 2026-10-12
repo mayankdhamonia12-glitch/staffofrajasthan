@@ -1,54 +1,36 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h1 class="text-xl font-bold text-slate-900">Candidate dashboard</h1>
-    </x-slot>
+<x-candidate-dashboard-layout title="Dashboard" active="dashboard" subtitle="Your job search, all in one place.">
+    @if (session('status'))<div role="status" class="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{{ session('status') }}</div>@endif
 
-    <div class="mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
-        <section class="rounded-2xl bg-white p-6 shadow-sm sm:p-8">
-            <p class="text-sm font-semibold text-brand-700">Welcome back</p>
-            <h2 class="mt-1 text-2xl font-extrabold text-slate-950">{{ auth()->user()->name }}</h2>
-            <p class="mt-2 text-sm text-slate-600">Keep your search moving: review saved roles or explore current opportunities.</p>
-            <div class="mt-5 flex flex-wrap gap-3">
-                <x-ui.button :href="route('jobs.index')">Browse jobs</x-ui.button>
-                <x-ui.button :href="route('candidate.profile.edit')" variant="secondary">Update profile</x-ui.button>
-            </div>
-        </section>
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#092b5b] via-[#104481] to-[#1762a9] p-6 text-white shadow-sm sm:p-8">
+        <div class="absolute -right-10 -top-20 h-64 w-64 rounded-full border-[30px] border-white/5"></div><div class="relative max-w-2xl"><p class="text-sm font-semibold uppercase tracking-[.16em] text-blue-200">Candidate workspace</p><h2 class="mt-2 text-3xl font-extrabold sm:text-4xl">Welcome back, {{ auth()->user()->name }}</h2><p class="mt-3 max-w-xl text-sm leading-6 text-blue-100 sm:text-base">Stay on top of your applications, make your profile stand out, and find your next opportunity across Rajasthan.</p><div class="mt-6 flex flex-wrap gap-3"><x-ui.button :href="route('jobs.index')" variant="light">Explore jobs</x-ui.button><x-ui.button :href="route('candidate.profile.edit')" variant="secondary" class="border-white/30 bg-white/10 text-white hover:bg-white/20">Improve profile</x-ui.button></div></div>
+    </section>
 
-        <section class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-4"><div><p class="text-sm font-semibold text-brand-700">Your candidate profile</p><h2 class="mt-1 text-xl font-bold">{{ $candidateProfile->headline ?: 'Add your professional headline' }}</h2><p class="mt-1 text-sm text-slate-600">{{ $candidateProfile->is_public ? 'Your profile is visible in the public directory.' : 'Your profile is private until you choose to make it public.' }}</p></div><a href="{{ route('candidate.profile.edit') }}" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold">Complete profile</a></div>
-            <div class="mt-5"><div class="flex justify-between text-sm"><span class="font-medium">Profile completeness</span><span>{{ $profileCompletion }}%</span></div><div class="mt-2 h-2 overflow-hidden rounded-full bg-slate-100"><div class="h-full rounded-full bg-brand-700" style="width: {{ $profileCompletion }}%"></div></div></div>
-        </section>
+    <section aria-label="Candidate dashboard statistics" class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><p class="text-sm font-semibold text-slate-500">Applications recorded</p><span class="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-lg text-brand-700">▤</span></div><p class="mt-3 text-3xl font-extrabold text-slate-950">{{ number_format($applications) }}</p><a href="{{ route('candidate.applied-jobs.index') }}" class="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:underline">Review applications →</a></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><p class="text-sm font-semibold text-slate-500">Saved open jobs</p><span class="grid h-10 w-10 place-items-center rounded-xl bg-rose-50 text-xl text-rose-600">♡</span></div><p class="mt-3 text-3xl font-extrabold text-slate-950">{{ number_format($savedJobs) }}</p><a href="{{ route('candidate.saved-jobs.index') }}" class="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:underline">Open saved jobs →</a></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><p class="text-sm font-semibold text-slate-500">Profile views</p><span class="grid h-10 w-10 place-items-center rounded-xl bg-violet-50 text-lg text-violet-700">◷</span></div><p class="mt-3 text-3xl font-extrabold text-slate-950">{{ number_format($profileViews) }}</p><a href="{{ route('candidate.profile-views.index') }}" class="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:underline">View profile insights →</a></article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><div class="flex items-center justify-between"><p class="text-sm font-semibold text-slate-500">Profile strength</p><span class="grid h-10 w-10 place-items-center rounded-xl bg-emerald-50 text-lg text-emerald-700">✦</span></div><p class="mt-3 text-3xl font-extrabold text-slate-950">{{ $profileProgress['percentage'] }}<span class="text-xl">%</span></p><a href="{{ route('candidate.profile.edit') }}" class="mt-3 inline-flex text-sm font-semibold text-brand-700 hover:underline">Complete your profile →</a></article>
+    </section>
 
-        <section class="grid gap-4 sm:grid-cols-2">
-            <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p class="text-sm font-medium text-slate-500">Saved open jobs</p>
-                <p class="mt-2 text-3xl font-extrabold text-brand-700">{{ number_format($savedJobCount) }}</p>
-                <a href="{{ route('candidate.saved-jobs.index') }}" class="mt-4 inline-flex font-semibold text-brand-700 hover:underline">View saved jobs <span class="ml-1" aria-hidden="true">→</span></a>
-            </article>
-            <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-                <p class="text-sm font-medium text-slate-500">Applications recorded</p>
-                <p class="mt-2 text-3xl font-extrabold text-brand-700">{{ number_format($applicationCount) }}</p>
-                <p class="mt-4 text-sm text-slate-500">Employer review tools and notifications are not available yet.</p>
-            </article>
-        </section>
+    <section class="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,.8fr)]">
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7">
+            <div class="flex flex-wrap items-start justify-between gap-4"><div><p class="text-sm font-semibold text-brand-700">Profile checklist</p><h2 class="mt-1 text-xl font-extrabold">Make a stronger first impression</h2><p class="mt-1 text-sm text-slate-500">{{ $profileProgress['completed'] }} of {{ $profileProgress['total'] }} sections complete</p></div><div class="grid h-20 w-20 shrink-0 place-items-center rounded-full" role="img" aria-label="Profile {{ $profileProgress['percentage'] }} percent complete" style="background: conic-gradient(#1967d2 {{ $profileProgress['percentage'] }}%, #e2e8f0 0)"><span class="grid h-14 w-14 place-items-center rounded-full bg-white text-lg font-extrabold">{{ $profileProgress['percentage'] }}%</span></div></div>
+            @if($profileProgress['missing'])<ul class="mt-5 grid gap-2 sm:grid-cols-2">@foreach($profileProgress['missing'] as $item)<li><a href="{{ $item['action'].'#'.$item['anchor'] }}" class="flex items-center gap-3 rounded-xl bg-slate-50 px-3 py-3 text-sm font-medium text-slate-700 transition hover:bg-blue-50 hover:text-brand-800"><span class="grid h-6 w-6 place-items-center rounded-full border border-slate-300 text-xs text-slate-400" aria-hidden="true">+</span>{{ $item['label'] }}<span class="ml-auto text-brand-700" aria-hidden="true">→</span></a></li>@endforeach</ul>@else<div class="mt-5 rounded-xl bg-emerald-50 p-4 text-sm font-medium text-emerald-800">Your profile checklist is complete. Keep your experience and links up to date.</div>@endif
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-7"><div class="flex items-start justify-between"><div><p class="text-sm font-semibold text-brand-700">Profile reach</p><h2 class="mt-1 text-xl font-extrabold">Views over the last 14 days</h2></div><a href="{{ route('candidate.profile-views.index') }}" aria-label="Open profile views" class="text-sm font-semibold text-brand-700">Details →</a></div>
+            @if($profileViews === 0)<div class="mt-6 rounded-xl bg-slate-50 px-4 py-6 text-center"><p class="font-semibold text-slate-700">No profile views yet</p><p class="mt-1 text-sm text-slate-500">Make your profile public so people can discover it.</p><a href="{{ route('candidate.profile.edit') }}#profile" class="mt-3 inline-block text-sm font-bold text-brand-700">Review visibility settings</a></div>@else<div class="mt-6"><div class="flex h-28 items-end gap-1.5" role="img" aria-label="Daily profile views over the last 14 days">@foreach($profileViewTrend as $point)<div class="group relative flex h-full flex-1 items-end" title="{{ $point['label'] }}: {{ $point['views'] }} views"><div class="w-full rounded-t-sm bg-brand-600/80 transition group-hover:bg-brand-700" style="height: {{ $point['views'] ? max(8, (int) round($point['views'] / max(1, max(array_column($profileViewTrend, 'views'))) * 100)) : 0 }}%" aria-hidden="true"></div></div>@endforeach</div><div class="mt-2 flex justify-between text-[10px] text-slate-400"><span>{{ $profileViewTrend[0]['label'] }}</span><span>{{ $profileViewTrend[array_key_last($profileViewTrend)]['label'] }}</span></div></div>@endif
+        </article>
+    </section>
 
-        <section>
-            <div class="flex flex-wrap items-end justify-between gap-3">
-                <div><p class="text-sm font-bold uppercase tracking-wider text-brand-700">Your shortlist</p><h2 class="mt-1 text-xl font-bold text-slate-950">Recently saved jobs</h2></div>
-                @if ($recentSavedJobs->isNotEmpty())<a href="{{ route('candidate.saved-jobs.index') }}" class="text-sm font-semibold text-brand-700 hover:underline">See all</a>@endif
-            </div>
-            @if ($recentSavedJobs->isEmpty())
-                <x-ui.empty-state class="mt-5" title="No saved jobs yet" description="Save opportunities that interest you and they’ll be collected here." :action="route('jobs.index')" action-text="Explore current jobs" />
-            @else
-                <div class="mt-5 grid gap-4 lg:grid-cols-3">
-                    @foreach ($recentSavedJobs as $savedJob)
-                        <div class="space-y-3">
-                            <x-job-card :job="$savedJob->job" />
-                            <form method="POST" action="{{ route('candidate.saved-jobs.destroy', $savedJob) }}">@csrf @method('DELETE')<button class="text-sm font-semibold text-rose-700 hover:underline">Remove from saved jobs</button></form>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-    </div>
-</x-app-layout>
+    <section class="grid gap-6 xl:grid-cols-2">
+        <article class="rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6"><div><p class="text-xs font-bold uppercase tracking-wider text-brand-700">Recent activity</p><h2 class="mt-1 text-lg font-extrabold">Your applications</h2></div><a href="{{ route('candidate.applied-jobs.index') }}" class="text-sm font-semibold text-brand-700 hover:underline">View all</a></div>
+            @if($recentApplications->isEmpty())<div class="p-6"><x-ui.empty-state title="No applications yet" description="When you apply for a job, it will appear here with its current status." :action="route('jobs.index')" action-text="Explore jobs" /></div>@else<div class="divide-y divide-slate-100">@foreach($recentApplications as $application)<div class="flex flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-6"><div class="min-w-0"><a href="{{ route('jobs.show',$application->job) }}" class="font-bold text-slate-900 hover:text-brand-700">{{ $application->job->title }}</a><p class="mt-1 text-sm text-slate-500">{{ $application->job->company->name }} · Applied {{ $application->created_at->diffForHumans() }}</p></div><x-candidate-application-status :status="$application->status" /></div>@endforeach</div>@endif
+        </article>
+        <article class="rounded-2xl border border-slate-200 bg-white shadow-sm"><div class="flex items-center justify-between gap-3 border-b border-slate-100 px-5 py-4 sm:px-6"><div><p class="text-xs font-bold uppercase tracking-wider text-brand-700">Keep exploring</p><h2 class="mt-1 text-lg font-extrabold">Recently saved jobs</h2></div><a href="{{ route('candidate.saved-jobs.index') }}" class="text-sm font-semibold text-brand-700 hover:underline">View all</a></div>
+            @if($recentSavedJobs->isEmpty())<div class="p-6"><x-ui.empty-state title="No saved jobs yet" description="Save roles you want to revisit and compare later." :action="route('jobs.index')" action-text="Browse jobs" /></div>@else<div class="divide-y divide-slate-100">@foreach($recentSavedJobs as $savedJob)<div class="flex items-center gap-3 px-5 py-4 sm:px-6"><div class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 font-bold text-brand-700">{{ mb_substr($savedJob->job->company->name,0,1) }}</div><div class="min-w-0 flex-1"><a href="{{ route('jobs.show',$savedJob->job) }}" class="block truncate font-bold text-slate-900 hover:text-brand-700">{{ $savedJob->job->title }}</a><p class="mt-1 truncate text-sm text-slate-500">{{ $savedJob->job->company->name }}@if($savedJob->job->location) · {{ $savedJob->job->location->name }}@endif</p></div><span class="shrink-0 text-xs text-slate-400">{{ $savedJob->created_at->diffForHumans() }}</span></div>@endforeach</div>@endif
+        </article>
+    </section>
+
+    <section class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-slate-300 bg-white p-5 sm:p-6"><div><p class="font-bold">More ways to move forward</p><p class="mt-1 text-sm text-slate-500">Alerts, employer follows, notifications, messages, and interviews will appear as those features launch.</p></div><a href="{{ route('candidate.job-alerts.index') }}" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Explore dashboard tools</a></section>
+    <section class="grid gap-4 md:grid-cols-2"><article class="rounded-2xl border border-slate-200 bg-white p-5"><div class="flex items-center justify-between"><h2 class="font-extrabold">Notifications</h2><a href="{{ route('candidate.notifications.index') }}" class="text-sm font-semibold text-brand-700">Open →</a></div><p class="mt-2 text-sm leading-6 text-slate-500">Candidate notifications are not connected yet. When application and account events are wired up, unread updates will be listed here.</p></article><article class="rounded-2xl border border-slate-200 bg-white p-5"><div class="flex items-center justify-between"><h2 class="font-extrabold">Upcoming activity</h2><a href="{{ route('candidate.meetings.index') }}" class="text-sm font-semibold text-brand-700">Meetings →</a></div><p class="mt-2 text-sm leading-6 text-slate-500">No interviews are scheduled. Meeting scheduling will populate this area when the interview workflow is available.</p></article></section>
+</x-candidate-dashboard-layout>

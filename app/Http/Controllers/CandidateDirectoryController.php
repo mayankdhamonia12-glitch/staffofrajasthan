@@ -7,6 +7,7 @@ use App\Models\JobCategory;
 use App\UserRole;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -73,8 +74,28 @@ class CandidateDirectoryController extends Controller
     {
         abort_unless($candidate->is_public && $candidate->user?->role === UserRole::Candidate, 404);
         $candidate->load(['user', 'skills', 'categories', 'educations', 'experiences', 'languages', 'portfolios', 'awards']);
+        $this->recordView($candidate);
 
         return view('public.candidate-profile', ['candidate' => $candidate]);
+    }
+
+    private function recordView(CandidateProfile $candidate): void
+    {
+        $viewerId = Auth::id();
+        if ($viewerId !== null && (int) $viewerId === (int) $candidate->user_id) {
+            return;
+        }
+
+        $visitorKey = $viewerId === null ? 'session:'.request()->session()->getId() : 'user:'.$viewerId;
+        $fingerprint = hash_hmac('sha256', $visitorKey, (string) config('app.key'));
+        $recentViewExists = $candidate->profileViews()
+            ->where('visitor_fingerprint', $fingerprint)
+            ->where('viewed_at', '>=', now()->subMinutes(30))
+            ->exists();
+
+        if (! $recentViewExists) {
+            $candidate->profileViews()->create(['visitor_fingerprint' => $fingerprint, 'viewed_at' => now()]);
+        }
     }
 
     public function photo(CandidateProfile $candidate): StreamedResponse

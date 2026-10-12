@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\UserRole;
+use App\View\Components\CandidateDashboardLayout;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -27,6 +29,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->registerGates();
+        Blade::component(CandidateDashboardLayout::class);
     }
 
     /**

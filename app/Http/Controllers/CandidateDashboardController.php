@@ -2,29 +2,28 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CandidateDashboardDataService;
+use App\Services\CandidateProfileCompletionService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class CandidateDashboardController extends Controller
 {
-    public function __invoke(Request $request): View
-    {
+    public function __invoke(
+        Request $request,
+        CandidateDashboardDataService $dashboardData,
+        CandidateProfileCompletionService $completion,
+    ): View {
         $user = $request->user();
         $candidateProfile = $user->candidateProfile()->firstOrCreate();
         $candidateProfile->load(['skills', 'educations', 'experiences', 'portfolios']);
-        $recentSavedJobs = $user->savedJobs()
-            ->whereHas('job', fn ($query) => $query->publiclyAvailable())
-            ->with(['job.company.location', 'job.category', 'job.location', 'job.skills'])
-            ->latest()
-            ->limit(3)
-            ->get();
+        $progress = $completion->calculate($candidateProfile, $user->name);
+        $data = $dashboardData->overview($user, $candidateProfile);
 
         return view('candidate.dashboard', [
-            'savedJobCount' => $user->savedJobs()->whereHas('job', fn ($query) => $query->publiclyAvailable())->count(),
-            'applicationCount' => $user->jobApplications()->count(),
-            'recentSavedJobs' => $recentSavedJobs,
+            ...$data,
             'candidateProfile' => $candidateProfile,
-            'profileCompletion' => $candidateProfile->completionPercentage(),
+            'profileProgress' => $progress,
         ]);
     }
 }

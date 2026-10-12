@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\CandidateProfileCompletionService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -85,19 +86,15 @@ class CandidateProfile extends Model
         return $this->hasMany(CandidateShortlist::class);
     }
 
+    /** @return HasMany<CandidateProfileView, $this> */
+    public function profileViews(): HasMany
+    {
+        return $this->hasMany(CandidateProfileView::class);
+    }
+
     public function completionPercentage(): int
     {
-        $sections = [
-            filled($this->headline) && filled($this->about) && filled($this->city),
-            filled($this->profile_photo_path),
-            filled($this->resume_path),
-            $this->skills->isNotEmpty(),
-            $this->educations->isNotEmpty(),
-            $this->experiences->isNotEmpty(),
-            $this->portfolios->isNotEmpty(),
-        ];
-
-        return (int) round(count(array_filter($sections)) / count($sections) * 100);
+        return app(CandidateProfileCompletionService::class)->calculate($this, $this->user->name)['percentage'];
     }
 
     public function publicSlug(string $name): string

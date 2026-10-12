@@ -1,10 +1,14 @@
 <?php
 
+use App\Http\Controllers\CandidateAppliedJobsController;
 use App\Http\Controllers\CandidateDashboardController;
+use App\Http\Controllers\CandidateDashboardSectionController;
 use App\Http\Controllers\CandidateDirectoryController;
 use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\CandidateProfileResourceController;
+use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
+use App\Http\Controllers\CandidateSettingsController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
@@ -76,9 +80,16 @@ Route::middleware('auth')->group(function () {
 
 Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/dashboard', CandidateDashboardController::class)->name('dashboard');
+    Route::get('/applied-jobs', [CandidateAppliedJobsController::class, 'index'])->name('applied-jobs.index');
     Route::get('/saved-jobs', [CandidateSavedJobsController::class, 'index'])->name('saved-jobs.index');
     Route::delete('/saved-jobs/{savedJob}', [CandidateSavedJobsController::class, 'destroy'])->name('saved-jobs.destroy');
     Route::post('/jobs/{job:slug}/save', [CandidateSavedJobsController::class, 'store'])->name('jobs.save');
+    Route::get('/profile-views', [CandidateProfileViewsController::class, 'index'])->name('profile-views.index');
+    Route::get('/settings', [CandidateSettingsController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [CandidateSettingsController::class, 'update'])->name('settings.update');
+    foreach (['alerts' => 'job-alerts', 'following' => 'following', 'notifications' => 'notifications', 'meetings' => 'meetings', 'messages' => 'messages', 'reviews' => 'reviews'] as $section => $path) {
+        Route::get('/'.$path, CandidateDashboardSectionController::class)->defaults('section', $section)->name($path.'.index');
+    }
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/photo', [CandidateProfileController::class, 'photo'])->name('profile.photo');
