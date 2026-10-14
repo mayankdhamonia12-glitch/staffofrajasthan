@@ -3,6 +3,7 @@
 @php
     $items = [
         ['id' => 'dashboard', 'label' => 'Overview', 'route' => 'employer.dashboard', 'icon' => '⌂'],
+        ['id' => 'applications', 'label' => 'Applicants', 'route' => 'employer.applications.index', 'icon' => '✉'],
         ['id' => 'jobs', 'label' => 'My Jobs', 'route' => 'employer.jobs.index', 'icon' => '▤'],
         ['id' => 'post', 'label' => 'Post a Job', 'route' => 'employer.jobs.create', 'icon' => '+'],
         ['id' => 'companies', 'label' => 'Company Profile', 'route' => 'employer.companies.index', 'icon' => '▣'],

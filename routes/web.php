@@ -9,6 +9,7 @@ use App\Http\Controllers\CandidateProfileResourceController;
 use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
+use App\Http\Controllers\EmployerApplicationController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\EmployerDashboardController;
 use App\Http\Controllers\EmployerJobController;
@@ -129,6 +130,11 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
     Route::get('/dashboard', EmployerDashboardController::class)->name('dashboard');
+    Route::get('/applications', [EmployerApplicationController::class, 'index'])->name('applications.index');
+    Route::get('/jobs/{job}/applications', [EmployerApplicationController::class, 'forJob'])->name('jobs.applications.index');
+    Route::get('/applications/{jobApplication}', [EmployerApplicationController::class, 'show'])->name('applications.show');
+    Route::patch('/applications/{jobApplication}/status', [EmployerApplicationController::class, 'updateStatus'])->name('applications.status');
+    Route::post('/applications/{jobApplication}/notes', [EmployerApplicationController::class, 'storeNote'])->name('applications.notes.store');
     Route::get('/jobs', EmployerJobsIndex::class)->name('jobs.index');
     Route::get('/jobs/create', [EmployerJobController::class, 'create'])->name('jobs.create');
     Route::post('/jobs', [EmployerJobController::class, 'store'])->name('jobs.store');

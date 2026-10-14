@@ -80,11 +80,11 @@ test('applied jobs page is paginated and contains only the signed-in candidate a
     [$otherCandidate] = candidateWithProfile();
     $ownJob = candidateDashboardJob('own-app', 'My Application Role');
     $otherJob = candidateDashboardJob('other-app', 'Private Other Role');
-    $candidate->jobApplications()->create(['job_id' => $ownJob->id, 'status' => 'submitted']);
-    $otherCandidate->jobApplications()->create(['job_id' => $otherJob->id, 'status' => 'accepted']);
+    $candidate->jobApplications()->create(['job_id' => $ownJob->id, 'status' => 'applied']);
+    $otherCandidate->jobApplications()->create(['job_id' => $otherJob->id, 'status' => 'selected']);
 
     $this->actingAs($candidate)->get(route('candidate.applied-jobs.index'))->assertOk()
-        ->assertSee('My Application Role')->assertSee('Submitted')->assertDontSee('Private Other Role');
+        ->assertSee('My Application Role')->assertSee('Applied')->assertDontSee('Private Other Role');
 });
 
 test('profile completion is based on actual profile sections and returns actionable missing items', function () {

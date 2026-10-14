@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Job;
 use App\Models\JobApplication;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class JobApplicationController extends Controller
@@ -27,15 +29,22 @@ class JobApplicationController extends Controller
         $data = $request->validate([
             'cover_letter' => ['nullable', 'string', 'max:5000'],
         ]);
-        $application = JobApplication::query()->firstOrCreate(
-            ['user_id' => $request->user()->getKey(), 'job_id' => $job->getKey()],
-            ['cover_letter' => $data['cover_letter'] ?? null, 'status' => 'submitted'],
-        );
+        try {
+            $application = DB::transaction(fn (): JobApplication => JobApplication::query()->firstOrCreate(
+                ['user_id' => $request->user()->getKey(), 'job_id' => $job->getKey()],
+                ['cover_letter' => $data['cover_letter'] ?? null, 'status' => 'applied'],
+            ));
+        } catch (UniqueConstraintViolationException $exception) {
+            $application = $request->user()->jobApplications()->where('job_id', $job->getKey())->first();
+            if (! $application) {
+                throw $exception;
+            }
+        }
 
         return redirect()->route('jobs.apply', $job)->with(
             'status',
             $application->wasRecentlyCreated
-                ? 'Your application has been recorded. Employer review tools will be available in a later milestone.'
+                ? 'Your application has been recorded. You can track its status from your Applied Jobs dashboard.'
                 : 'You have already applied for this job.',
         );
     }

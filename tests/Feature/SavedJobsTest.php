@@ -153,7 +153,7 @@ test('job applications send guests to login and let candidates apply once', func
     $this->assertDatabaseHas('job_applications', [
         'user_id' => $candidate->id,
         'job_id' => $job->id,
-        'status' => 'submitted',
+        'status' => 'applied',
     ]);
 
     $this->post(route('jobs.apply.store', $job), ['cover_letter' => 'Duplicate application'])
