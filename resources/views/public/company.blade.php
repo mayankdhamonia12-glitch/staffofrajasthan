@@ -27,6 +27,17 @@
                     </div>
                 </div>
                 <x-ui.button :href="route('jobs.index', ['keyword' => $company->name])">Browse open roles <span aria-hidden="true">→</span></x-ui.button>
+                @auth
+                    @if(auth()->user()->isCandidate())
+                        @if($isFollowing)
+                            <form method="POST" action="{{ route('companies.unfollow', $company) }}">@csrf @method('DELETE')<button class="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Following · Unfollow</button></form>
+                        @else
+                            <form method="POST" action="{{ route('companies.follow', $company) }}">@csrf<button class="rounded-xl border border-brand-700 bg-white px-5 py-3 text-sm font-bold text-brand-700 hover:bg-blue-50">Follow company</button></form>
+                        @endif
+                    @endif
+                @else
+                    <a href="{{ route('login') }}" class="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50">Sign in to follow</a>
+                @endauth
             </div>
         </div>
     </section>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Company;
 use App\Models\Industry;
 use App\Models\Location;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -41,7 +42,7 @@ class PublicPageController extends Controller
         return view('public.companies', compact('companies', 'industries', 'locations', 'companySizes'));
     }
 
-    public function showCompany(Company $company): View
+    public function showCompany(Request $request, Company $company): View
     {
         abort_unless($company->is_visible, 404);
 
@@ -52,7 +53,12 @@ class PublicPageController extends Controller
             ->latest('published_at')
             ->paginate(10);
 
-        return view('public.company', compact('company', 'jobs'));
+        $user = $request->user();
+        $isFollowing = $user instanceof User && $user->isCandidate()
+            ? $company->followers()->whereKey($user->getKey())->exists()
+            : false;
+
+        return view('public.company', compact('company', 'jobs', 'isFollowing'));
     }
 
     public function blog(): View

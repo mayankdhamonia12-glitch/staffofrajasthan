@@ -18,6 +18,8 @@ class CandidateDashboardLayout extends Component
     /** @var array{percentage: int, completed: int, total: int, sections: list<array{label: string, complete: bool, action: string, anchor: string}>, missing: list<array{label: string, complete: bool, action: string, anchor: string}>} */
     public array $dashboardProfileProgress;
 
+    public int $dashboardUnreadNotificationCount;
+
     public function __construct(
         public string $title,
         public string $active = 'dashboard',
@@ -26,6 +28,7 @@ class CandidateDashboardLayout extends Component
         $authenticatedUser = Auth::user();
         $this->dashboardCandidate = $authenticatedUser instanceof User ? $authenticatedUser : null;
         $this->dashboardCandidateProfile = $this->dashboardCandidate?->candidateProfile;
+        $this->dashboardUnreadNotificationCount = $this->dashboardCandidate?->unreadNotifications()->count() ?? 0;
         $this->dashboardProfileProgress = app(CandidateProfileCompletionService::class)->calculate(
             $this->dashboardCandidateProfile,
             $this->dashboardCandidate ? $this->dashboardCandidate->name : '',

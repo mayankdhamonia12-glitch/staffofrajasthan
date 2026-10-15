@@ -16,11 +16,12 @@
             @if ($application)
                 <div class="mt-7 rounded-2xl bg-slate-50 p-5">
                     <x-ui.badge tone="green">Application recorded</x-ui.badge>
-                    <p class="mt-3 text-sm leading-6 text-slate-600">Your application was recorded on {{ $application->created_at->toFormattedDateString() }}. Employer review tools and notifications are not available yet.</p>
+                    <p class="mt-3 text-sm leading-6 text-slate-600">Your application was recorded on {{ $application->created_at->toFormattedDateString() }}. The employer has been notified; you can follow any status updates from your Applied Jobs dashboard.</p>
+                    <a href="{{ route('candidate.applied-jobs.index') }}" class="mt-4 inline-flex text-sm font-semibold text-brand-700 hover:underline">Track application status →</a>
                     <x-ui.button :href="route('jobs.show', $job)" variant="secondary" class="mt-4">Back to job details</x-ui.button>
                 </div>
             @else
-                <p class="mt-5 text-sm leading-6 text-slate-600">Your application will be stored in your candidate account. Add an optional note to introduce yourself. Employer review tools and notifications are planned for a later milestone.</p>
+                <p class="mt-5 text-sm leading-6 text-slate-600">Your application will be stored in your candidate account and the employer will be notified. Add an optional note to introduce yourself.</p>
                 <form method="POST" action="{{ route('jobs.apply.store', $job) }}" class="mt-7 space-y-5">
                     @csrf
                     <label for="cover_letter" class="block text-sm font-semibold text-slate-800">Cover letter <span class="font-normal text-slate-500">(optional)</span>

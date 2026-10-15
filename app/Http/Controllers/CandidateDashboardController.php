@@ -24,6 +24,7 @@ class CandidateDashboardController extends Controller
             ...$data,
             'candidateProfile' => $candidateProfile,
             'profileProgress' => $progress,
+            'unreadNotifications' => $user->unreadNotifications()->count(),
         ]);
     }
 }

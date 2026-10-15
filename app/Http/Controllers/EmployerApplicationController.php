@@ -6,6 +6,7 @@ use App\JobApplicationStatus;
 use App\Models\Job;
 use App\Models\JobApplication;
 use App\Models\User;
+use App\Notifications\ApplicationStatusChangedNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Http\RedirectResponse;
@@ -147,6 +148,8 @@ class EmployerApplicationController extends Controller
                 'created_at' => now(),
             ]);
             $application->update(['status' => $newStatus]);
+            $application->loadMissing('job');
+            $application->user->notify(new ApplicationStatusChangedNotification($application));
         });
 
         return back()->with('status', 'Application status updated.');

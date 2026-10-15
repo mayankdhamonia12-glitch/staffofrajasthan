@@ -9,6 +9,7 @@ use App\Models\JobCategory;
 use App\Models\Location;
 use App\Models\Skill;
 use App\Models\User;
+use App\Services\JobAlertMatchingService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -21,6 +22,8 @@ use Illuminate\View\View;
 
 class EmployerJobController extends Controller
 {
+    public function __construct(private readonly JobAlertMatchingService $matching) {}
+
     public function create(Request $request): View
     {
         return view('employer.jobs.form', [...$this->formData($request->user()), 'job' => null]);
@@ -47,6 +50,9 @@ class EmployerJobController extends Controller
             $attributes['is_filled'] = false;
             $job = $company->jobs()->create($attributes);
             $job->skills()->sync($data['skills'] ?? []);
+            if ($status === 'published') {
+                $this->matching->evaluatePublicJob($job);
+            }
 
             return $job;
         });
@@ -94,6 +100,9 @@ class EmployerJobController extends Controller
             $attributes['status'] = $status;
             $job->fill($attributes)->save();
             $job->skills()->sync($data['skills'] ?? []);
+            if ($status === 'published') {
+                $this->matching->evaluatePublicJob($job);
+            }
         });
 
         return back()->with('status', match ($intent) {

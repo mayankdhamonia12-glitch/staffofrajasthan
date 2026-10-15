@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\User;
+use App\Notifications\NewJobApplicationNotification;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -30,10 +32,22 @@ class JobApplicationController extends Controller
             'cover_letter' => ['nullable', 'string', 'max:5000'],
         ]);
         try {
-            $application = DB::transaction(fn (): JobApplication => JobApplication::query()->firstOrCreate(
-                ['user_id' => $request->user()->getKey(), 'job_id' => $job->getKey()],
-                ['cover_letter' => $data['cover_letter'] ?? null, 'status' => 'applied'],
-            ));
+            $application = DB::transaction(function () use ($request, $job, $data): JobApplication {
+                $application = JobApplication::query()->firstOrCreate(
+                    ['user_id' => $request->user()->getKey(), 'job_id' => $job->getKey()],
+                    ['cover_letter' => $data['cover_letter'] ?? null, 'status' => 'applied'],
+                );
+
+                if ($application->wasRecentlyCreated) {
+                    $employer = $job->company()->with('user')->firstOrFail()->user;
+                    if ($employer instanceof User && $employer->isEmployer()) {
+                        $application->setRelation('job', $job);
+                        $employer->notify(new NewJobApplicationNotification($application));
+                    }
+                }
+
+                return $application;
+            });
         } catch (UniqueConstraintViolationException $exception) {
             $application = $request->user()->jobApplications()->where('job_id', $job->getKey())->first();
             if (! $application) {

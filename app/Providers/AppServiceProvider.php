@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Company;
+use App\Models\Job;
+use App\Observers\CompanyObserver;
+use App\Observers\JobObserver;
 use App\UserRole;
 use App\View\Components\CandidateDashboardLayout;
 use Carbon\CarbonImmutable;
@@ -30,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
         $this->registerGates();
         Blade::component(CandidateDashboardLayout::class);
+        Company::observe(CompanyObserver::class);
+        Job::observe(JobObserver::class);
     }
 
     /**

@@ -60,4 +60,10 @@ class Company extends Model
     {
         return $this->belongsToMany(CandidateProfile::class, 'candidate_shortlists')->withTimestamps();
     }
+
+    /** @return BelongsToMany<User, $this> */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'company_follows')->withTimestamps();
+    }
 }

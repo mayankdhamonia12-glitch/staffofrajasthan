@@ -14,6 +14,8 @@ class EmployerDashboardLayout extends Component
 
     public ?Company $dashboardCompany;
 
+    public int $unreadNotificationCount;
+
     public function __construct(
         public string $title,
         public string $active = 'dashboard',
@@ -22,6 +24,7 @@ class EmployerDashboardLayout extends Component
         $authenticatedUser = Auth::user();
         $this->employer = $authenticatedUser instanceof User ? $authenticatedUser : null;
         $this->dashboardCompany = $this->employer?->companies()->with('industry')->orderBy('name')->first();
+        $this->unreadNotificationCount = $this->employer?->unreadNotifications()->count() ?? 0;
     }
 
     public function render(): View

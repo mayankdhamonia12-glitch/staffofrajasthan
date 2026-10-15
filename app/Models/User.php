@@ -8,6 +8,7 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -32,6 +33,13 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    protected static function booted(): void
+    {
+        static::deleting(function (User $user): void {
+            $user->notifications()->delete();
+        });
+    }
 
     /**
      * Get the attributes that should be cast.
@@ -113,6 +121,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function jobApplications(): HasMany
     {
         return $this->hasMany(JobApplication::class);
+    }
+
+    /** @return HasMany<JobAlert, $this> */
+    public function jobAlerts(): HasMany
+    {
+        return $this->hasMany(JobAlert::class);
+    }
+
+    /** @return BelongsToMany<Company, $this> */
+    public function followedCompanies(): BelongsToMany
+    {
+        return $this->belongsToMany(Company::class, 'company_follows')->withTimestamps();
     }
 
     /**

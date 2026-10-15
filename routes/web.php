@@ -4,11 +4,14 @@ use App\Http\Controllers\CandidateAppliedJobsController;
 use App\Http\Controllers\CandidateDashboardController;
 use App\Http\Controllers\CandidateDashboardSectionController;
 use App\Http\Controllers\CandidateDirectoryController;
+use App\Http\Controllers\CandidateJobAlertController;
 use App\Http\Controllers\CandidateProfileController;
 use App\Http\Controllers\CandidateProfileResourceController;
 use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
+use App\Http\Controllers\CompanyFollowController;
+use App\Http\Controllers\DashboardNotificationController;
 use App\Http\Controllers\EmployerApplicationController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\EmployerDashboardController;
@@ -37,6 +40,8 @@ Route::get('/candidates/{candidate:slug}/photo', [CandidateDirectoryController::
 Route::get('/candidates/{candidate:slug}', [CandidateDirectoryController::class, 'show'])->name('candidates.show');
 Route::get('/companies', [PublicPageController::class, 'companies'])->name('companies.index');
 Route::get('/companies/{company:slug}', [PublicPageController::class, 'showCompany'])->name('companies.show');
+Route::post('/companies/{company:slug}/follow', [CompanyFollowController::class, 'store'])->middleware(['auth', 'role:candidate'])->name('companies.follow');
+Route::delete('/companies/{company:slug}/follow', [CompanyFollowController::class, 'destroy'])->middleware(['auth', 'role:candidate'])->name('companies.unfollow');
 Route::get('/blog', [PublicPageController::class, 'blog'])->name('blog.index');
 Route::get('/about', [PublicPageController::class, 'about'])->name('about');
 Route::get('/contact', [PublicPageController::class, 'contact'])->name('contact');
@@ -92,7 +97,19 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::get('/profile-views', [CandidateProfileViewsController::class, 'index'])->name('profile-views.index');
     Route::get('/settings', [CandidateSettingsController::class, 'edit'])->name('settings.edit');
     Route::patch('/settings', [CandidateSettingsController::class, 'update'])->name('settings.update');
-    foreach (['alerts' => 'job-alerts', 'following' => 'following', 'notifications' => 'notifications', 'meetings' => 'meetings', 'messages' => 'messages', 'reviews' => 'reviews'] as $section => $path) {
+    Route::get('/job-alerts', [CandidateJobAlertController::class, 'index'])->name('job-alerts.index');
+    Route::get('/job-alerts/create', [CandidateJobAlertController::class, 'create'])->name('job-alerts.create');
+    Route::post('/job-alerts', [CandidateJobAlertController::class, 'store'])->name('job-alerts.store');
+    Route::get('/job-alerts/{jobAlert}', [CandidateJobAlertController::class, 'show'])->whereNumber('jobAlert')->name('job-alerts.show');
+    Route::get('/job-alerts/{jobAlert}/edit', [CandidateJobAlertController::class, 'edit'])->whereNumber('jobAlert')->name('job-alerts.edit');
+    Route::put('/job-alerts/{jobAlert}', [CandidateJobAlertController::class, 'update'])->whereNumber('jobAlert')->name('job-alerts.update');
+    Route::patch('/job-alerts/{jobAlert}/active', [CandidateJobAlertController::class, 'setActive'])->whereNumber('jobAlert')->name('job-alerts.active');
+    Route::delete('/job-alerts/{jobAlert}', [CandidateJobAlertController::class, 'destroy'])->whereNumber('jobAlert')->name('job-alerts.destroy');
+    Route::get('/following', [CompanyFollowController::class, 'index'])->name('following.index');
+    Route::get('/notifications', [DashboardNotificationController::class, 'candidateIndex'])->name('notifications.index');
+    Route::post('/notifications/read-all', [DashboardNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [DashboardNotificationController::class, 'markRead'])->whereUuid('notification')->name('notifications.read');
+    foreach (['meetings' => 'meetings', 'messages' => 'messages', 'reviews' => 'reviews'] as $section => $path) {
         Route::get('/'.$path, CandidateDashboardSectionController::class)->defaults('section', $section)->name($path.'.index');
     }
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
@@ -135,6 +152,9 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/applications/{jobApplication}', [EmployerApplicationController::class, 'show'])->name('applications.show');
     Route::patch('/applications/{jobApplication}/status', [EmployerApplicationController::class, 'updateStatus'])->name('applications.status');
     Route::post('/applications/{jobApplication}/notes', [EmployerApplicationController::class, 'storeNote'])->name('applications.notes.store');
+    Route::get('/notifications', [DashboardNotificationController::class, 'employerIndex'])->name('notifications.index');
+    Route::post('/notifications/read-all', [DashboardNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::patch('/notifications/{notification}/read', [DashboardNotificationController::class, 'markRead'])->whereUuid('notification')->name('notifications.read');
     Route::get('/jobs', EmployerJobsIndex::class)->name('jobs.index');
     Route::get('/jobs/create', [EmployerJobController::class, 'create'])->name('jobs.create');
     Route::post('/jobs', [EmployerJobController::class, 'store'])->name('jobs.store');
