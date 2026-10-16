@@ -9,7 +9,7 @@ test('the public homepage presents the job portal and uses live domain data', fu
         ->assertSee('Featured jobs')
         ->assertSee('The latest opportunities')
         ->assertSee('Employers to know')
-        ->assertSee('The blog is coming soon')
+        ->assertSee('No articles published yet')
         ->assertSee('Create candidate account')
         ->assertSee('Create employer account')
         ->assertSee('name="keyword"', false)

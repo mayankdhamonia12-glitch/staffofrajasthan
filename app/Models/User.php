@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 /**
@@ -24,6 +25,10 @@ use Illuminate\Support\Str;
  * @property Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
+ * @property string|null $blog_author_slug
+ * @property string|null $blog_display_name
+ * @property string|null $blog_bio
+ * @property string|null $blog_profile_image_path
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -165,6 +170,12 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(CompanyReview::class);
     }
 
+    /** @return HasMany<Article, $this> */
+    public function blogArticles(): HasMany
+    {
+        return $this->hasMany(Article::class, 'author_id');
+    }
+
     /** @return BelongsToMany<Company, $this> */
     public function followedCompanies(): BelongsToMany
     {
@@ -181,5 +192,26 @@ class User extends Authenticatable implements MustVerifyEmail
         return Str::length($initials) > 1
             ? Str::substr($initials, 0, 1).Str::substr($initials, -1)
             : $initials;
+    }
+
+    public function blogAuthorName(): string
+    {
+        return trim((string) $this->blog_display_name) !== ''
+            ? (string) $this->blog_display_name
+            : $this->name;
+    }
+
+    public function blogAuthorSlug(): string
+    {
+        return $this->blog_author_slug ?: Str::slug($this->blogAuthorName()).'-'.$this->getKey();
+    }
+
+    public function blogProfileImageUrl(): ?string
+    {
+        if (! $this->blog_profile_image_path || ! Storage::disk('public')->exists($this->blog_profile_image_path)) {
+            return null;
+        }
+
+        return Storage::disk('public')->url($this->blog_profile_image_path);
     }
 }

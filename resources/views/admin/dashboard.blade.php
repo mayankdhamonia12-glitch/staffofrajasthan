@@ -16,6 +16,9 @@
                     <p class="text-gray-600">You have access to the administrative panel.</p>
 
                     <a href="{{ route('admin.company-reviews.index') }}" class="mt-4 inline-flex rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">Moderate company reviews</a>
+                    <a href="{{ route('admin.blog.articles.index') }}" class="mt-4 ml-2 inline-flex rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900">Manage blog articles</a>
+                    <a href="{{ route('admin.blog.author-profile.edit') }}" class="mt-4 ml-2 inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Edit author profile</a>
+                    <a href="{{ route('admin.blog.taxonomies.index') }}" class="mt-4 ml-2 inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Manage blog categories</a>
 
                     <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
                         <div class="border rounded-lg p-4 text-center">

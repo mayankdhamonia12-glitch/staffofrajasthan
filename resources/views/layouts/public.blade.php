@@ -11,6 +11,16 @@
     <meta property="og:description" content="@yield('description', 'Explore career opportunities and employers across Rajasthan with Staff of Rajasthan.')">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:type" content="@yield('og_type', 'website')">
+    @hasSection('og_image')
+        <meta property="og:image" content="@yield('og_image')">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:image" content="@yield('og_image')">
+    @else
+        <meta name="twitter:card" content="summary">
+    @endif
+    <meta name="twitter:title" content="@yield('title', 'Jobs in Rajasthan | Staff of Rajasthan')">
+    <meta name="twitter:description" content="@yield('description', 'Explore career opportunities and employers across Rajasthan with Staff of Rajasthan.')">
+    @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
     <link rel="canonical" href="@yield('canonical', url()->current())">
     <link rel="icon" href="/favicon.ico" sizes="any">
     @vite(['resources/css/app.css', 'resources/js/app.js'])

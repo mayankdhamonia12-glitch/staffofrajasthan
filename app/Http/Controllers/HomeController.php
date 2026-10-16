@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
+use App\Models\Article;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\Location;
@@ -23,6 +24,7 @@ class HomeController extends Controller
             'categories' => $categories,
             'popularLocations' => Location::query()->where('is_active', true)->whereHas('jobs', fn ($query) => $query->publiclyAvailable())->withCount(['jobs' => fn ($query) => $query->publiclyAvailable()])->orderByDesc('jobs_count')->limit(4)->get(),
             'companies' => Company::query()->where('is_visible', true)->whereHas('jobs', fn ($query) => $query->publiclyAvailable())->with(['industry', 'location'])->withCount(['jobs' => fn ($query) => $query->publiclyAvailable()])->orderByDesc('jobs_count')->limit(4)->get(),
+            'latestArticles' => Article::query()->published()->with(['author', 'categories'])->latest('published_at')->limit(3)->get(),
         ]);
     }
 }

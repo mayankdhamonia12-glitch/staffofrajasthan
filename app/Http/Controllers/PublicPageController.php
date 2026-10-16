@@ -71,11 +71,6 @@ class PublicPageController extends Controller
         return view('public.company', compact('company', 'jobs', 'isFollowing', 'reviews', 'approvedReviewCount', 'approvedRatingAverage', 'canReview', 'hasReviewed'));
     }
 
-    public function blog(): View
-    {
-        return view('public.blog');
-    }
-
     public function about(): View
     {
         return view('public.about');

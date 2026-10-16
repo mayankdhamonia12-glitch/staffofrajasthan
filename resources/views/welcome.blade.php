@@ -123,8 +123,12 @@
 
     <section class="border-t border-slate-100 bg-white">
         <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-            <x-ui.section-heading eyebrow="Career resources" title="Ideas for your next move" description="Practical insights for candidates and employers will live here." :link="route('blog.index')" link-text="Visit the blog" />
-            <x-ui.empty-state class="mt-8" title="The blog is coming soon" description="We’re preparing useful career and hiring resources. No articles have been published yet." :action="route('blog.index')" action-text="Learn about the platform" icon="✎" />
+            <x-ui.section-heading eyebrow="Career resources" title="Ideas for your next move" description="Practical insights for candidates and employers across Rajasthan." :link="route('blog.index')" link-text="Visit the blog" />
+            @if ($latestArticles->isEmpty())
+                <x-ui.empty-state class="mt-8" title="No articles published yet" description="Career guidance and hiring insights will appear here when the first articles are published." :action="route('blog.index')" action-text="Explore the blog" icon="✎" />
+            @else
+                <div class="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">@foreach ($latestArticles as $article)<x-blog-card :article="$article" />@endforeach</div>
+            @endif
         </div>
     </section>
 @endsection

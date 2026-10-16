@@ -1,0 +1,14 @@
+<x-app-layout>
+    <x-slot name="header"><div class="flex flex-wrap items-center justify-between gap-3"><div><h2 class="text-xl font-semibold leading-tight text-gray-800">Blog author profile</h2><p class="mt-1 text-sm text-gray-500">This public profile appears only when you have published articles.</p></div><a href="{{ route('admin.blog.articles.index') }}" class="text-sm font-semibold text-blue-700 hover:underline">Back to articles</a></div></x-slot>
+    <div class="mx-auto max-w-3xl space-y-5 px-4 py-8 sm:px-6 lg:px-8">
+        @if(session('status'))<div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-semibold text-emerald-800">{{ session('status') }}</div>@endif
+        @if($errors->any())<div class="rounded-xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800"><ul class="list-inside list-disc">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+        <form method="POST" enctype="multipart/form-data" action="{{ route('admin.blog.author-profile.update') }}" class="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">@csrf @method('PUT')
+            <label class="block"><span class="mb-1.5 block text-sm font-bold text-slate-800">Display name</span><input name="blog_display_name" value="{{ old('blog_display_name', $author->blog_display_name) }}" maxlength="120" class="w-full rounded-xl border-slate-300" placeholder="{{ $author->name }}"></label>
+            <label class="block"><span class="mb-1.5 block text-sm font-bold text-slate-800">Biography</span><textarea name="blog_bio" rows="5" maxlength="2000" class="w-full rounded-xl border-slate-300" placeholder="A short professional biography for your public articles.">{{ old('blog_bio', $author->blog_bio) }}</textarea></label>
+            <label class="block"><span class="mb-1.5 block text-sm font-bold text-slate-800">Profile image</span><input type="file" name="profile_image" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-slate-600 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:font-semibold"><span class="mt-1 block text-xs text-slate-500">JPG, PNG or WebP; up to 5 MB.</span></label>
+            @if($author->blogProfileImageUrl())<div class="flex items-center gap-3"><img src="{{ $author->blogProfileImageUrl() }}" alt="" class="h-16 w-16 rounded-full object-cover"><label class="text-sm font-semibold text-slate-600"><input type="checkbox" name="remove_profile_image" value="1" class="mr-1 rounded border-slate-300">Remove current image</label></div>@endif
+            <div class="flex justify-end border-t border-slate-100 pt-5"><button class="rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-bold text-white hover:bg-blue-800">Save author profile</button></div>
+        </form>
+    </div>
+</x-app-layout>
