@@ -129,6 +129,42 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(JobAlert::class);
     }
 
+    /** @return HasMany<Conversation, $this> */
+    public function candidateConversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'candidate_user_id');
+    }
+
+    /** @return HasMany<Conversation, $this> */
+    public function employerConversations(): HasMany
+    {
+        return $this->hasMany(Conversation::class, 'employer_user_id');
+    }
+
+    /** @return HasMany<Message, $this> */
+    public function sentMessages(): HasMany
+    {
+        return $this->hasMany(Message::class, 'sender_user_id');
+    }
+
+    /** @return HasMany<Meeting, $this> */
+    public function candidateMeetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'candidate_user_id');
+    }
+
+    /** @return HasMany<Meeting, $this> */
+    public function employerMeetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class, 'employer_user_id');
+    }
+
+    /** @return HasMany<CompanyReview, $this> */
+    public function companyReviews(): HasMany
+    {
+        return $this->hasMany(CompanyReview::class);
+    }
+
     /** @return BelongsToMany<Company, $this> */
     public function followedCompanies(): BelongsToMany
     {

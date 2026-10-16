@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\CandidateAppliedJobsController;
 use App\Http\Controllers\CandidateDashboardController;
-use App\Http\Controllers\CandidateDashboardSectionController;
 use App\Http\Controllers\CandidateDirectoryController;
 use App\Http\Controllers\CandidateJobAlertController;
 use App\Http\Controllers\CandidateProfileController;
@@ -11,6 +10,8 @@ use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
 use App\Http\Controllers\CompanyFollowController;
+use App\Http\Controllers\CompanyReviewController;
+use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DashboardNotificationController;
 use App\Http\Controllers\EmployerApplicationController;
 use App\Http\Controllers\EmployerCompanyController;
@@ -19,6 +20,7 @@ use App\Http\Controllers\EmployerJobController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
+use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
 use App\Livewire\Employer\Jobs\Index as EmployerJobsIndex;
@@ -109,9 +111,15 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
     Route::get('/notifications', [DashboardNotificationController::class, 'candidateIndex'])->name('notifications.index');
     Route::post('/notifications/read-all', [DashboardNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::patch('/notifications/{notification}/read', [DashboardNotificationController::class, 'markRead'])->whereUuid('notification')->name('notifications.read');
-    foreach (['meetings' => 'meetings', 'messages' => 'messages', 'reviews' => 'reviews'] as $section => $path) {
-        Route::get('/'.$path, CandidateDashboardSectionController::class)->defaults('section', $section)->name($path.'.index');
-    }
+    Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('/meetings/{meeting}', [MeetingController::class, 'show'])->whereNumber('meeting')->name('meetings.show');
+    Route::get('/messages', [ConversationController::class, 'index'])->name('messages.index');
+    Route::post('/messages/start/{jobApplication}', [ConversationController::class, 'start'])->whereNumber('jobApplication')->name('messages.start');
+    Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->whereNumber('conversation')->name('messages.show');
+    Route::post('/messages/{conversation}', [ConversationController::class, 'send'])->whereNumber('conversation')->middleware('throttle:20,1')->name('messages.send');
+    Route::get('/messages/{conversation}/updates', [ConversationController::class, 'updates'])->whereNumber('conversation')->middleware('throttle:60,1')->name('messages.updates');
+    Route::get('/reviews', [CompanyReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews', [CompanyReviewController::class, 'store'])->name('reviews.store');
     Route::get('/profile', [CandidateProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [CandidateProfileController::class, 'update'])->name('profile.update');
     Route::get('/profile/photo', [CandidateProfileController::class, 'photo'])->name('profile.photo');
@@ -152,6 +160,19 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
     Route::get('/applications/{jobApplication}', [EmployerApplicationController::class, 'show'])->name('applications.show');
     Route::patch('/applications/{jobApplication}/status', [EmployerApplicationController::class, 'updateStatus'])->name('applications.status');
     Route::post('/applications/{jobApplication}/notes', [EmployerApplicationController::class, 'storeNote'])->name('applications.notes.store');
+    Route::get('/applications/{jobApplication}/meetings/create', [MeetingController::class, 'create'])->name('meetings.create');
+    Route::post('/applications/{jobApplication}/meetings', [MeetingController::class, 'store'])->name('meetings.store');
+    Route::get('/meetings', [MeetingController::class, 'index'])->name('meetings.index');
+    Route::get('/meetings/{meeting}', [MeetingController::class, 'show'])->whereNumber('meeting')->name('meetings.show');
+    Route::get('/meetings/{meeting}/edit', [MeetingController::class, 'edit'])->whereNumber('meeting')->name('meetings.edit');
+    Route::patch('/meetings/{meeting}/reschedule', [MeetingController::class, 'reschedule'])->whereNumber('meeting')->name('meetings.reschedule');
+    Route::patch('/meetings/{meeting}/cancel', [MeetingController::class, 'cancel'])->whereNumber('meeting')->name('meetings.cancel');
+    Route::patch('/meetings/{meeting}/complete', [MeetingController::class, 'complete'])->whereNumber('meeting')->name('meetings.complete');
+    Route::get('/messages', [ConversationController::class, 'index'])->name('messages.index');
+    Route::post('/messages/start/{jobApplication}', [ConversationController::class, 'start'])->whereNumber('jobApplication')->name('messages.start');
+    Route::get('/messages/{conversation}', [ConversationController::class, 'show'])->whereNumber('conversation')->name('messages.show');
+    Route::post('/messages/{conversation}', [ConversationController::class, 'send'])->whereNumber('conversation')->middleware('throttle:20,1')->name('messages.send');
+    Route::get('/messages/{conversation}/updates', [ConversationController::class, 'updates'])->whereNumber('conversation')->middleware('throttle:60,1')->name('messages.updates');
     Route::get('/notifications', [DashboardNotificationController::class, 'employerIndex'])->name('notifications.index');
     Route::post('/notifications/read-all', [DashboardNotificationController::class, 'markAllRead'])->name('notifications.read-all');
     Route::patch('/notifications/{notification}/read', [DashboardNotificationController::class, 'markRead'])->whereUuid('notification')->name('notifications.read');
@@ -177,4 +198,6 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
 
 Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
     Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::get('/company-reviews', [CompanyReviewController::class, 'moderationIndex'])->name('company-reviews.index');
+    Route::patch('/company-reviews/{companyReview}/moderate', [CompanyReviewController::class, 'moderate'])->whereNumber('companyReview')->name('company-reviews.moderate');
 });

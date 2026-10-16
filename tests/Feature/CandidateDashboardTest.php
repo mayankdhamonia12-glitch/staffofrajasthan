@@ -123,7 +123,7 @@ test('public candidate views count once per session window and exclude the profi
         ->and(array_sum(array_column($summary['trend'], 'views')))->toBe(1);
 });
 
-test('dashboard tools are candidate-only while unsupported systems render truthful empty states', function () {
+test('candidate dashboard routes remain role protected and new sections render helpful empty states', function () {
     $employer = User::factory()->employer()->create();
     $routes = [
         'candidate.dashboard', 'candidate.applied-jobs.index', 'candidate.saved-jobs.index',
@@ -139,7 +139,12 @@ test('dashboard tools are candidate-only while unsupported systems render truthf
     $candidate = User::factory()->candidate()->create();
     $this->actingAs($candidate)->get(route('candidate.notifications.index'))->assertOk()
         ->assertSee('There are no candidate notifications yet');
-    $this->get(route('candidate.messages.index'))->assertOk()->assertSee('No conversations are stored');
+    $this->get(route('candidate.messages.index'))->assertOk()
+        ->assertSee('No conversations yet')
+        ->assertSee('You can start a private conversation from one of your applied jobs.')
+        ->assertSee('Messages are only available in the context of a real application.');
+    $this->get(route('candidate.meetings.index'))->assertOk()->assertSee('No upcoming meetings');
+    $this->get(route('candidate.reviews.index'))->assertOk()->assertSee('No reviews submitted');
 });
 
 test('candidate settings cannot change role and account deletion requires current password and removes private files', function () {

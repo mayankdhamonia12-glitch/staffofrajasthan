@@ -66,4 +66,10 @@ class Company extends Model
     {
         return $this->belongsToMany(User::class, 'company_follows')->withTimestamps();
     }
+
+    /** @return HasMany<CompanyReview, $this> */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(CompanyReview::class);
+    }
 }

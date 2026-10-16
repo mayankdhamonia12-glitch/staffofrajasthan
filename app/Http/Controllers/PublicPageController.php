@@ -58,7 +58,17 @@ class PublicPageController extends Controller
             ? $company->followers()->whereKey($user->getKey())->exists()
             : false;
 
-        return view('public.company', compact('company', 'jobs', 'isFollowing'));
+        $reviews = $company->reviews()->approved()->latest()->paginate(5, ['*'], 'reviews_page')->withQueryString();
+        $approvedReviewCount = $company->reviews()->approved()->count();
+        $approvedRatingAverage = $company->reviews()->approved()->avg('rating');
+        $canReview = $user instanceof User && $user->isCandidate()
+            ? $user->jobApplications()->whereHas('job', fn ($query) => $query->where('company_id', $company->getKey()))->exists()
+            : false;
+        $hasReviewed = $user instanceof User && $user->isCandidate()
+            ? $company->reviews()->where('user_id', $user->getKey())->exists()
+            : false;
+
+        return view('public.company', compact('company', 'jobs', 'isFollowing', 'reviews', 'approvedReviewCount', 'approvedRatingAverage', 'canReview', 'hasReviewed'));
     }
 
     public function blog(): View

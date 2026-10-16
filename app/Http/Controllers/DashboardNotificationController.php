@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Job;
 use App\Models\JobApplication;
+use App\Models\Meeting;
 use App\Models\User;
 use App\Notifications\ApplicationStatusChangedNotification;
 use App\Notifications\JobOpportunityNotification;
+use App\Notifications\MeetingChangedNotification;
 use App\Notifications\NewJobApplicationNotification;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -72,6 +74,14 @@ class DashboardNotificationController extends Controller
                     ->first();
                 if ($application instanceof JobApplication) {
                     $target = route('employer.applications.show', $application);
+                }
+            } elseif ($notification->type === MeetingChangedNotification::class && isset($data['meeting_id'])) {
+                $meeting = Meeting::query()
+                    ->where($candidate ? 'candidate_user_id' : 'employer_user_id', $user->getKey())
+                    ->whereKey((int) $data['meeting_id'])
+                    ->first();
+                if ($meeting instanceof Meeting) {
+                    $target = route($candidate ? 'candidate.meetings.show' : 'employer.meetings.show', $meeting);
                 }
             }
 

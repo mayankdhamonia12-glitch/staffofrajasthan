@@ -15,6 +15,8 @@
                     </h3>
                     <p class="text-gray-600">You have access to the administrative panel.</p>
 
+                    <a href="{{ route('admin.company-reviews.index') }}" class="mt-4 inline-flex rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">Moderate company reviews</a>
+
                     <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
                         <div class="border rounded-lg p-4 text-center">
                             <div class="text-2xl font-bold text-red-600">0</div>

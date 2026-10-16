@@ -74,4 +74,31 @@
             @endif
         </div>
     </section>
+
+    <section class="border-t border-slate-100 bg-slate-50">
+        <div class="mx-auto grid max-w-7xl gap-8 px-4 py-12 sm:px-6 sm:py-16 lg:grid-cols-[minmax(0,1fr)_380px] lg:px-8">
+            <div>
+                <div class="flex flex-wrap items-end justify-between gap-4"><div><p class="text-sm font-semibold text-brand-700">Candidate feedback</p><h2 class="mt-1 text-2xl font-extrabold text-slate-950">Company reviews</h2></div><div class="text-right">@if($approvedReviewCount > 0)<p class="text-2xl font-extrabold text-slate-950">{{ number_format((float)$approvedRatingAverage, 1) }} <span class="text-amber-500" aria-hidden="true">★</span></p><p class="text-xs text-slate-500">Based on {{ $approvedReviewCount }} approved {{ \Illuminate\Support\Str::plural('review', $approvedReviewCount) }}</p>@else<p class="text-sm font-medium text-slate-500">No approved ratings yet</p>@endif</div></div>
+                @if($reviews->isEmpty())<div class="mt-5 rounded-2xl border border-dashed border-slate-300 bg-white p-6"><h3 class="font-bold text-slate-900">No approved reviews yet</h3><p class="mt-1 text-sm text-slate-500">Candidate reviews appear here only after moderation. No ratings or activity are fabricated.</p></div>
+                @else<div class="mt-5 space-y-3">@foreach($reviews as $review)<article class="rounded-2xl border border-slate-200 bg-white p-5"><div class="flex flex-wrap items-start justify-between gap-3"><h3 class="font-extrabold text-slate-900">{{ $review->title }}</h3><span class="rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-800">{{ $review->rating }} / 5</span></div><p class="mt-3 whitespace-pre-line text-sm leading-6 text-slate-600">{{ $review->body }}</p><p class="mt-3 text-xs text-slate-500">Verified applicant · {{ $review->created_at->format('M Y') }}</p></article>@endforeach</div><div class="mt-4">{{ $reviews->links() }}</div>@endif
+            </div>
+            <aside class="h-fit rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+                <p class="text-sm font-semibold text-brand-700">Share your experience</p><h3 class="mt-1 text-xl font-extrabold">Review {{ $company->name }}</h3>
+                @auth
+                    @if(auth()->user()->isCandidate() && $hasReviewed)
+                        <p class="mt-3 text-sm leading-6 text-slate-600">You have already submitted a review for this company. One review is allowed per candidate and company; check your candidate dashboard for its moderation status.</p><a href="{{ route('candidate.reviews.index') }}" class="mt-4 inline-flex rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">View my reviews</a>
+                    @elseif(auth()->user()->isCandidate() && $canReview)
+                        <p class="mt-2 text-sm leading-6 text-slate-600">Available to candidates who applied to at least one job at this company. New reviews remain private until approved by moderation.</p>
+                        <form method="POST" action="{{ route('candidate.reviews.store') }}" class="mt-4 space-y-3">@csrf<input type="hidden" name="company_id" value="{{ $company->id }}"><label class="block text-sm font-semibold text-slate-700">Overall rating<select name="rating" required class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-brand-600 focus:ring-brand-600">@foreach(range(5, 1) as $rating)<option value="{{ $rating }}" @selected((int)old('rating') === $rating)>{{ $rating }} out of 5</option>@endforeach</select>@error('rating')<span class="mt-1 block text-sm text-rose-700">{{ $message }}</span>@enderror</label><label class="block text-sm font-semibold text-slate-700">Review title<input name="title" required maxlength="160" value="{{ old('title') }}" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-brand-600 focus:ring-brand-600">@error('title')<span class="mt-1 block text-sm text-rose-700">{{ $message }}</span>@enderror</label><label class="block text-sm font-semibold text-slate-700">Your experience<textarea name="body" required minlength="20" maxlength="5000" rows="5" class="mt-1 block w-full rounded-xl border-slate-300 text-sm focus:border-brand-600 focus:ring-brand-600">{{ old('body') }}</textarea>@error('body')<span class="mt-1 block text-sm text-rose-700">{{ $message }}</span>@enderror</label>@error('company_id')<p class="text-sm text-rose-700">{{ $message }}</p>@enderror<button class="w-full rounded-xl bg-brand-700 px-4 py-3 text-sm font-bold text-white hover:bg-brand-800">Submit for moderation</button></form>
+                    @elseif(auth()->user()->isCandidate())
+                        <p class="mt-3 text-sm leading-6 text-slate-600">A candidate must apply to one of this company's jobs before submitting a review. Reviews are limited to one per candidate and company.</p>
+                    @else
+                        <p class="mt-3 text-sm leading-6 text-slate-600">Company reviews are available to candidates with an application relationship.</p>
+                    @endif
+                @else
+                    <p class="mt-3 text-sm leading-6 text-slate-600">Candidates may submit one review after applying to a job at this company. Reviews are moderated before publication.</p><a href="{{ route('login') }}" class="mt-4 inline-flex rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-slate-50">Sign in as a candidate</a>
+                @endauth
+            </aside>
+        </div>
+    </section>
 @endsection

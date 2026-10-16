@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class JobApplication extends Model
 {
@@ -32,5 +33,17 @@ class JobApplication extends Model
     public function notes(): HasMany
     {
         return $this->hasMany(JobApplicationNote::class, 'job_application_id')->latest();
+    }
+
+    /** @return HasOne<Conversation, $this> */
+    public function conversation(): HasOne
+    {
+        return $this->hasOne(Conversation::class);
+    }
+
+    /** @return HasMany<Meeting, $this> */
+    public function meetings(): HasMany
+    {
+        return $this->hasMany(Meeting::class);
     }
 }

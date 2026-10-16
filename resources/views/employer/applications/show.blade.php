@@ -7,7 +7,7 @@
             @if($profile?->slug && $profile->profile_photo_path)<img src="{{ route('candidates.photo', $profile->slug) }}" alt="{{ $application->user->name }}" class="h-full w-full object-cover">@else{{ mb_substr($application->user->name, 0, 1) }}@endif
         </div>
         <div class="min-w-0 flex-1"><p class="text-sm font-semibold text-brand-700">{{ $application->job->company->name }} · {{ $application->job->title }}</p><h2 class="mt-1 text-2xl font-extrabold text-slate-950">{{ $application->user->name }}</h2><p class="mt-1 text-sm text-slate-500">{{ $profile?->headline ?: ($profile ? 'Candidate profile' : 'Private candidate profile') }} · Applied {{ $application->created_at->toFormattedDateString() }}</p></div>
-        <x-job-application-status :status="$application->status" />
+        <div class="flex flex-wrap gap-2"><x-job-application-status :status="$application->status" /><a href="{{ route('employer.meetings.create', $application) }}" class="rounded-xl border border-slate-200 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Schedule interview</a><form method="POST" action="{{ route('employer.messages.start', $application) }}">@csrf<button class="rounded-xl bg-brand-700 px-3 py-2 text-sm font-bold text-white hover:bg-brand-800">Message candidate</button></form></div>
     </section>
 
     <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
