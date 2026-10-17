@@ -28,7 +28,8 @@ class Company extends Model
      */
     public function scopePubliclyVisible(Builder $query): Builder
     {
-        return $query->where('is_visible', true);
+        return $query->where('is_visible', true)
+            ->whereHas('user', fn (Builder $users) => $users->where('is_suspended', false));
     }
 
     /** @return BelongsTo<User, $this> */

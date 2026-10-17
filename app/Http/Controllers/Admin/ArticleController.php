@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\User;
 use App\Services\ArticlePublishingService;
+use App\Services\AdminAuditLogger;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -57,11 +58,12 @@ class ArticleController extends Controller
         return view('admin.blog.articles.form', ['article' => null]);
     }
 
-    public function store(Request $request, ArticlePublishingService $publishing): RedirectResponse
+    public function store(Request $request, ArticlePublishingService $publishing, AdminAuditLogger $audit): RedirectResponse
     {
         $this->authorize('create', Article::class);
         $data = $this->validatedArticleData($request);
         $article = $publishing->save($this->user($request), $data, null, $this->uploadedFile($request, 'featured_image'));
+        $audit->record($this->user($request), 'blog.article_created', $article, 'Created blog article '.$article->getKey().'.', null, null, ['title' => $article->title, 'status' => $article->status->value, 'is_featured' => $article->is_featured]);
 
         return redirect()->route('admin.blog.articles.edit', $article)->with('status', 'Article saved.');
     }
@@ -74,11 +76,13 @@ class ArticleController extends Controller
         return view('admin.blog.articles.form', compact('article'));
     }
 
-    public function update(Request $request, Article $article, ArticlePublishingService $publishing): RedirectResponse
+    public function update(Request $request, Article $article, ArticlePublishingService $publishing, AdminAuditLogger $audit): RedirectResponse
     {
         $this->authorize('update', $article);
+        $before = ['title' => $article->title, 'status' => $article->status->value, 'is_featured' => $article->is_featured];
         $data = $this->validatedArticleData($request, $article);
         $article = $publishing->save($this->user($request), $data, $article, $this->uploadedFile($request, 'featured_image'));
+        $audit->record($this->user($request), 'blog.article_updated', $article, 'Updated blog article '.$article->getKey().'.', null, $before, ['title' => $article->title, 'status' => $article->status->value, 'is_featured' => $article->is_featured]);
 
         return redirect()->route('admin.blog.articles.edit', $article)->with('status', 'Article saved.');
     }
@@ -92,10 +96,12 @@ class ArticleController extends Controller
             ->header('X-Robots-Tag', 'noindex, nofollow');
     }
 
-    public function destroy(Article $article, ArticlePublishingService $publishing): RedirectResponse
+    public function destroy(Request $request, Article $article, ArticlePublishingService $publishing, AdminAuditLogger $audit): RedirectResponse
     {
         $this->authorize('delete', $article);
+        $before = ['title' => $article->title, 'status' => $article->status->value];
         $publishing->delete($article);
+        $audit->record($this->user($request), 'blog.article_deleted', $article, 'Deleted blog article '.$article->getKey().'.', null, $before, null);
 
         return redirect()->route('admin.blog.articles.index')->with('status', 'Article deleted.');
     }
@@ -108,7 +114,7 @@ class ArticleController extends Controller
         return view('admin.blog.author-profile', compact('author'));
     }
 
-    public function updateAuthorProfile(Request $request, ArticlePublishingService $publishing): RedirectResponse
+    public function updateAuthorProfile(Request $request, ArticlePublishingService $publishing, AdminAuditLogger $audit): RedirectResponse
     {
         $this->authorize('create', Article::class);
         $data = $request->validate([
@@ -118,7 +124,10 @@ class ArticleController extends Controller
             'remove_profile_image' => ['nullable', 'boolean'],
         ]);
 
-        $publishing->updateAuthorProfile($this->user($request), $data, $this->uploadedFile($request, 'profile_image'));
+        $author = $this->user($request);
+        $before = ['blog_display_name' => $author->blog_display_name, 'blog_author_slug' => $author->blog_author_slug];
+        $author = $publishing->updateAuthorProfile($author, $data, $this->uploadedFile($request, 'profile_image'));
+        $audit->record($author, 'blog.author_profile_updated', $author, 'Updated blog author profile.', null, $before, ['blog_display_name' => $author->blog_display_name, 'blog_author_slug' => $author->blog_author_slug]);
 
         return back()->with('status', 'Author profile updated.');
     }

@@ -8,6 +8,8 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -29,6 +31,10 @@ use Illuminate\Support\Str;
  * @property string|null $blog_display_name
  * @property string|null $blog_bio
  * @property string|null $blog_profile_image_path
+ * @property bool $is_suspended
+ * @property Carbon|null $suspended_at
+ * @property int|null $suspended_by_user_id
+ * @property string|null $suspension_reason
  * @property Carbon|null $created_at
  * @property Carbon|null $updated_at
  */
@@ -57,6 +63,8 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'role' => UserRole::class,
+            'is_suspended' => 'boolean',
+            'suspended_at' => 'immutable_datetime',
         ];
     }
 
@@ -98,6 +106,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function hasAnyRole(UserRole ...$roles): bool
     {
         return in_array($this->role, $roles, true);
+    }
+
+    /**
+     * @param Builder<User> $query
+     * @return Builder<User>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_suspended', false);
+    }
+
+    public function isSuspended(): bool
+    {
+        return (bool) $this->is_suspended;
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function suspendedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'suspended_by_user_id');
     }
 
     /**

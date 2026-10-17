@@ -22,6 +22,8 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\ControlPanelController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\BlogTaxonomyController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ProfileController;
@@ -71,6 +73,8 @@ require __DIR__.'/auth.php';
 */
 
 Route::middleware('auth')->group(function () {
+
+    Route::view('/account/suspended', 'auth.suspended')->name('account.suspended');
 
     // Generic dashboard — redirects to the correct role-specific dashboard.
     Route::get('/dashboard', function () {
@@ -204,7 +208,25 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
 */
 
 Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
-    Route::view('/dashboard', 'admin.dashboard')->name('dashboard');
+    Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+    Route::get('/users', [ControlPanelController::class, 'users'])->name('users.index');
+    Route::get('/users/{user}', [ControlPanelController::class, 'showUser'])->whereNumber('user')->name('users.show');
+    Route::post('/users/{user}/suspend', [ControlPanelController::class, 'suspendUser'])->whereNumber('user')->name('users.suspend');
+    Route::post('/users/{user}/reactivate', [ControlPanelController::class, 'reactivateUser'])->whereNumber('user')->name('users.reactivate');
+    Route::patch('/users/{user}/role', [ControlPanelController::class, 'changeUserRole'])->whereNumber('user')->name('users.role');
+    Route::get('/jobs', [ControlPanelController::class, 'jobs'])->name('jobs.index');
+    Route::patch('/jobs/{job}/moderate', [ControlPanelController::class, 'moderateJob'])->whereNumber('job')->name('jobs.moderate');
+    Route::get('/companies', [ControlPanelController::class, 'companies'])->name('companies.index');
+    Route::patch('/companies/{company}/visibility', [ControlPanelController::class, 'moderateCompany'])->whereNumber('company')->name('companies.visibility');
+    Route::get('/applications', [ControlPanelController::class, 'applications'])->name('applications.index');
+    Route::get('/applications/{application}', [ControlPanelController::class, 'application'])->whereNumber('application')->name('applications.show');
+    Route::get('/reference-data', [ControlPanelController::class, 'referenceData'])->name('reference-data.index');
+    Route::post('/reference-data/{type}', [ControlPanelController::class, 'storeReferenceData'])->whereIn('type', ['categories', 'industries', 'skills'])->name('reference-data.store');
+    Route::patch('/reference-data/{type}/{id}', [ControlPanelController::class, 'updateReferenceData'])->whereIn('type', ['categories', 'industries', 'skills'])->whereNumber('id')->name('reference-data.update');
+    Route::patch('/reference-data/{type}/{id}/active', [ControlPanelController::class, 'toggleReferenceData'])->whereIn('type', ['categories', 'industries', 'skills'])->whereNumber('id')->name('reference-data.active');
+    Route::get('/settings', [ControlPanelController::class, 'settings'])->name('settings.edit');
+    Route::patch('/settings', [ControlPanelController::class, 'updateSettings'])->name('settings.update');
+    Route::get('/audit-log', [ControlPanelController::class, 'audit'])->name('audit.index');
     Route::get('/company-reviews', [CompanyReviewController::class, 'moderationIndex'])->name('company-reviews.index');
     Route::patch('/company-reviews/{companyReview}/moderate', [CompanyReviewController::class, 'moderate'])->whereNumber('companyReview')->name('company-reviews.moderate');
     Route::get('/blog/articles', [ArticleController::class, 'index'])->name('blog.articles.index');

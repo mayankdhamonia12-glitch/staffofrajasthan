@@ -3,9 +3,20 @@
 namespace App\Providers;
 
 use App\Models\Company;
+use App\Models\CompanyReview;
+use App\Models\Article;
+use App\Models\JobApplication;
 use App\Models\Job;
+use App\Models\User;
+use App\Policies\CompanyPolicy;
+use App\Policies\CompanyReviewPolicy;
+use App\Policies\ArticlePolicy;
+use App\Policies\JobApplicationPolicy;
+use App\Policies\JobPolicy;
+use App\Policies\UserPolicy;
 use App\Observers\CompanyObserver;
 use App\Observers\JobObserver;
+use App\Services\PlatformSettingsService;
 use App\UserRole;
 use App\View\Components\CandidateDashboardLayout;
 use Carbon\CarbonImmutable;
@@ -23,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(PlatformSettingsService::class);
     }
 
     /**
@@ -33,6 +44,15 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->registerGates();
+        Gate::policy(User::class, UserPolicy::class);
+        Gate::policy(Job::class, JobPolicy::class);
+        Gate::policy(Company::class, CompanyPolicy::class);
+        Gate::policy(JobApplication::class, JobApplicationPolicy::class);
+        Gate::policy(CompanyReview::class, CompanyReviewPolicy::class);
+        Gate::policy(Article::class, ArticlePolicy::class);
+        Gate::define('manage-reference-data', fn ($user): bool => ! $user->isSuspended() && ($user->isAdmin() || $user->isOwner()));
+        Gate::define('manage-platform-settings', fn ($user): bool => ! $user->isSuspended() && $user->isOwner());
+        Gate::define('view-admin-audit-log', fn ($user): bool => ! $user->isSuspended() && $user->isOwner());
         Blade::component(CandidateDashboardLayout::class);
         Company::observe(CompanyObserver::class);
         Job::observe(JobObserver::class);

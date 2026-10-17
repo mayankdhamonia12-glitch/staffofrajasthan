@@ -1,45 +1,12 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Admin Dashboard') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-lg font-semibold mb-4">
-                        Welcome, {{ auth()->user()->name }}!
-                        <span class="text-sm font-normal text-gray-500">({{ ucfirst(auth()->user()->role->value) }})</span>
-                    </h3>
-                    <p class="text-gray-600">You have access to the administrative panel.</p>
-
-                    <a href="{{ route('admin.company-reviews.index') }}" class="mt-4 inline-flex rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-800">Moderate company reviews</a>
-                    <a href="{{ route('admin.blog.articles.index') }}" class="mt-4 ml-2 inline-flex rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900">Manage blog articles</a>
-                    <a href="{{ route('admin.blog.author-profile.edit') }}" class="mt-4 ml-2 inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Edit author profile</a>
-                    <a href="{{ route('admin.blog.taxonomies.index') }}" class="mt-4 ml-2 inline-flex rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:bg-slate-50">Manage blog categories</a>
-
-                    <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-4">
-                        <div class="border rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-red-600">0</div>
-                            <div class="text-sm text-gray-500 mt-1">Total Users</div>
-                        </div>
-                        <div class="border rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-red-600">0</div>
-                            <div class="text-sm text-gray-500 mt-1">Active Jobs</div>
-                        </div>
-                        <div class="border rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-red-600">0</div>
-                            <div class="text-sm text-gray-500 mt-1">Applications</div>
-                        </div>
-                        <div class="border rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-red-600">0</div>
-                            <div class="text-sm text-gray-500 mt-1">Employers</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout>
+<x-admin-layout title="Dashboard" active="dashboard">
+    <section class="rounded-2xl bg-gradient-to-r from-slate-950 to-brand-900 p-6 text-white sm:p-8"><p class="text-sm font-semibold text-brand-100">{{ ucfirst(auth()->user()->role->value) }} overview</p><h2 class="mt-2 text-2xl font-extrabold">Welcome back, {{ auth()->user()->name }}</h2><p class="mt-2 max-w-2xl text-sm leading-6 text-slate-200">A live snapshot of the platform's current records. Choose an area below to review and manage its data.</p></section>
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        @foreach([['Users', $counts['users'], $counts['suspended'].' suspended'], ['Public jobs', $counts['published_jobs'], $counts['jobs'].' total listings'], ['Applications', $counts['applications'], 'Read-only oversight'], ['Companies', $counts['visible_companies'], $counts['companies'].' total profiles'], ['Candidates', $counts['candidates'], 'Accounts'], ['Employers', $counts['employers'], 'Accounts'], ['Blog articles', $counts['articles'], 'All statuses'], ['Pending reviews', $counts['pending_reviews'], 'Awaiting moderation']] as [$label, $value, $note])
+            <article class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"><p class="text-sm font-semibold text-slate-500">{{ $label }}</p><p class="mt-3 text-3xl font-extrabold tracking-tight">{{ number_format($value) }}</p><p class="mt-1 text-xs text-slate-500">{{ $note }}</p></article>
+        @endforeach
+    </section>
+    <section class="grid gap-6 xl:grid-cols-2">
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white"><div class="flex items-center justify-between border-b border-slate-100 px-5 py-4"><h2 class="font-bold">Recently registered users</h2><a href="{{ route('admin.users.index') }}" class="text-sm font-semibold text-brand-700">View users</a></div><div class="divide-y divide-slate-100">@forelse($recentUsers as $user)<div class="flex items-center justify-between gap-4 px-5 py-3"><div class="min-w-0"><p class="truncate text-sm font-semibold">{{ $user->name }}</p><p class="truncate text-xs text-slate-500">{{ $user->email }}</p></div><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{{ ucfirst($user->role->value) }}{{ $user->is_suspended ? ' · Suspended' : '' }}</span></div>@empty<p class="p-5 text-sm text-slate-500">No user records yet.</p>@endforelse</div></div>
+        <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white"><div class="flex items-center justify-between border-b border-slate-100 px-5 py-4"><h2 class="font-bold">Recently added jobs</h2><a href="{{ route('admin.jobs.index') }}" class="text-sm font-semibold text-brand-700">View jobs</a></div><div class="divide-y divide-slate-100">@forelse($recentJobs as $job)<div class="flex items-center justify-between gap-4 px-5 py-3"><div class="min-w-0"><p class="truncate text-sm font-semibold">{{ $job->title }}</p><p class="truncate text-xs text-slate-500">{{ $job->company?->name ?? 'Company unavailable' }}</p></div><span class="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold">{{ ucfirst($job->status) }}</span></div>@empty<p class="p-5 text-sm text-slate-500">No job records yet.</p>@endforelse</div></div>
+    </section>
+</x-admin-layout>

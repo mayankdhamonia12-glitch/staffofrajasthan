@@ -6,7 +6,9 @@ use App\Models\Company;
 use App\Models\CompanyReview;
 use App\Models\User;
 use App\ReviewStatus;
+use App\Services\AdminAuditLogger;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +18,8 @@ use Illuminate\View\View;
 
 class CompanyReviewController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(Request $request): View
     {
         $candidate = $this->candidate($request);
@@ -60,8 +64,18 @@ class CompanyReviewController extends Controller
     public function moderationIndex(Request $request): View
     {
         $this->moderator($request);
+        $filters = $request->validate([
+            'status' => ['nullable', Rule::in(array_column(ReviewStatus::cases(), 'value'))],
+            'q' => ['nullable', 'string', 'max:120'],
+        ]);
         $reviews = CompanyReview::query()
-            ->where('status', ReviewStatus::Pending->value)
+            ->when(($filters['status'] ?? '') !== '', fn (Builder $query) => $query->where('status', $filters['status']), fn (Builder $query) => $query->where('status', ReviewStatus::Pending->value))
+            ->when(($filters['q'] ?? '') !== '', function (Builder $query) use ($filters): void {
+                $term = '%'.trim((string) $filters['q']).'%';
+                $query->where(fn (Builder $search) => $search
+                    ->whereHas('company', fn (Builder $companies) => $companies->where('name', 'like', $term))
+                    ->orWhereHas('candidate', fn (Builder $candidates) => $candidates->where('name', 'like', $term)));
+            })
             ->with(['company', 'candidate'])
             ->oldest()
             ->paginate(20);
@@ -69,20 +83,28 @@ class CompanyReviewController extends Controller
         return view('admin.company-reviews.index', compact('reviews'));
     }
 
-    public function moderate(Request $request, CompanyReview $companyReview): RedirectResponse
+    public function moderate(Request $request, CompanyReview $companyReview, AdminAuditLogger $audit): RedirectResponse
     {
         $moderator = $this->moderator($request);
-        $data = $request->validate(['status' => ['required', Rule::in([ReviewStatus::Approved->value, ReviewStatus::Rejected->value])]]);
+        $this->authorize('moderate', $companyReview);
+        $data = $request->validate([
+            'status' => ['required', Rule::in([ReviewStatus::Approved->value, ReviewStatus::Rejected->value])],
+            'moderation_note' => ['required', 'string', 'min:5', 'max:500'],
+        ]);
 
-        DB::transaction(function () use ($moderator, $companyReview, $data): void {
+        DB::transaction(function () use ($moderator, $companyReview, $data, $audit): void {
             $review = CompanyReview::query()->with('company')->whereKey($companyReview->getKey())->lockForUpdate()->firstOrFail();
+            $this->authorize('moderate', $review);
             abort_unless($review->status === ReviewStatus::Pending, 409, 'Only pending reviews can be moderated.');
             abort_unless((int) $review->company->user_id !== (int) $moderator->getKey(), 403, 'A company owner cannot moderate reviews of their own company.');
+            $before = ['status' => $review->status->value];
             $review->update([
                 'status' => ReviewStatus::from($data['status']),
                 'moderated_by_user_id' => $moderator->getKey(),
                 'moderated_at' => now(),
+                'moderation_note' => trim($data['moderation_note']),
             ]);
+            $audit->record($moderator, 'company_review.moderated', $review, 'Moderated company review '.$review->getKey().' as '.$review->status->value.'.', $data['moderation_note'], $before, ['status' => $review->status->value]);
         });
 
         return back()->with('status', 'Review moderation saved.');

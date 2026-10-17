@@ -115,7 +115,7 @@ test('an employer can create and update its own public company profile with bran
     ])->assertRedirect();
 
     expect($company->fresh()->name)->toBe('Employer Owned Studio Updated')
-        ->and($company->fresh()->is_visible)->toBeFalse();
+        ->and($company->fresh()->is_visible)->toBeTrue();
 });
 
 test('company management is restricted to the owning employer', function () {

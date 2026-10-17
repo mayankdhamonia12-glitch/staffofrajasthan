@@ -27,8 +27,8 @@ test('candidate skills belong to the authenticated candidate profile', function 
     $candidate = User::factory()->candidate()->create();
     $otherCandidate = User::factory()->candidate()->create();
 
-    $this->actingAs($candidate)->post(route('candidate.skills.store'), ['name' => 'Laravel'])->assertRedirect();
-    $this->actingAs($otherCandidate)->post(route('candidate.skills.store'), ['name' => 'PHP'])->assertRedirect();
+    $this->actingAs($candidate)->post(route('candidate.skills.store'), ['name' => 'Laravel'])->assertRedirect()->assertSessionHasNoErrors();
+    $this->actingAs($otherCandidate)->post(route('candidate.skills.store'), ['name' => 'PHP'])->assertRedirect()->assertSessionHasNoErrors();
 
     expect($candidate->candidateProfile()->firstOrFail()->skills->pluck('name')->all())->toBe(['Laravel'])
         ->and($otherCandidate->candidateProfile()->firstOrFail()->skills->pluck('name')->all())->toBe(['PHP']);

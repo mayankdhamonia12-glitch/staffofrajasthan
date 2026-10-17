@@ -7,7 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Skill extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'is_active'];
+
+    protected function casts(): array
+    {
+        return ['is_active' => 'boolean'];
+    }
 
     /** @return BelongsToMany<CandidateProfile, $this> */
     public function candidateProfiles(): BelongsToMany

@@ -85,7 +85,6 @@ class EmployerCompanyController extends Controller
             'address' => ['nullable', 'string', 'max:500'],
             'company_size' => ['nullable', Rule::in(['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001+'])],
             'founded_year' => ['nullable', 'integer', 'between:1800,'.now()->year],
-            'is_visible' => ['nullable', 'boolean'],
             'logo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ]);
@@ -99,9 +98,6 @@ class EmployerCompanyController extends Controller
     {
         $attributes = $data;
         unset($attributes['logo'], $attributes['cover']);
-        $attributes['is_visible'] = array_key_exists('is_visible', $data)
-            ? (bool) $data['is_visible']
-            : ($company === null ? true : $company->is_visible);
         $attributes['slug'] = $this->uniqueSlug((string) $data['name'], $company);
 
         return $attributes;

@@ -28,7 +28,7 @@ class CandidateDirectoryController extends Controller
 
         $query = CandidateProfile::query()
             ->where('is_public', true)
-            ->whereHas('user', fn (Builder $users) => $users->where('role', UserRole::Candidate))
+            ->whereHas('user', fn (Builder $users) => $users->where('role', UserRole::Candidate)->where('is_suspended', false))
             ->with(['user', 'skills', 'categories', 'educations', 'experiences', 'languages', 'portfolios', 'awards']);
 
         if ($keyword = trim((string) ($filters['keyword'] ?? ''))) {
@@ -72,7 +72,7 @@ class CandidateDirectoryController extends Controller
 
     public function show(CandidateProfile $candidate): View
     {
-        abort_unless($candidate->is_public && $candidate->user?->role === UserRole::Candidate, 404);
+        abort_unless($candidate->is_public && $candidate->user?->role === UserRole::Candidate && ! $candidate->user->isSuspended(), 404);
         $candidate->load(['user', 'skills', 'categories', 'educations', 'experiences', 'languages', 'portfolios', 'awards']);
         $this->recordView($candidate);
 
@@ -100,7 +100,7 @@ class CandidateDirectoryController extends Controller
 
     public function photo(CandidateProfile $candidate): StreamedResponse
     {
-        abort_unless($candidate->is_public && $candidate->user?->role === UserRole::Candidate && $candidate->profile_photo_path, 404);
+        abort_unless($candidate->is_public && $candidate->user?->role === UserRole::Candidate && ! $candidate->user->isSuspended() && $candidate->profile_photo_path, 404);
         $disk = Storage::disk((string) config('candidate.private_disk'));
         abort_unless($disk->exists($candidate->profile_photo_path), 404);
 

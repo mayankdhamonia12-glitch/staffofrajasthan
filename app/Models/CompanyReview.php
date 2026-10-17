@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  */
 class CompanyReview extends Model
 {
-    protected $fillable = ['company_id', 'user_id', 'rating', 'title', 'body', 'status', 'moderated_by_user_id', 'moderated_at'];
+    protected $fillable = ['company_id', 'user_id', 'rating', 'title', 'body', 'status', 'moderated_by_user_id', 'moderated_at', 'moderation_note'];
 
     protected function casts(): array
     {

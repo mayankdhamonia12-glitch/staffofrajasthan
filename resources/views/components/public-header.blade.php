@@ -2,7 +2,7 @@
     <div class="mx-auto flex min-h-[76px] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <a href="{{ route('home') }}" class="flex shrink-0 items-center gap-2.5 rounded-lg text-base font-extrabold tracking-tight text-slate-950 focus-visible:ring-2 focus-visible:ring-brand-600 sm:text-lg">
             <span class="grid h-10 w-10 place-items-center rounded-xl bg-brand-700 text-sm font-black text-white shadow-sm">SR</span>
-            <span>Staff of <span class="text-brand-700">Rajasthan</span></span>
+            <span>{{ config('app.name', 'Staff of Rajasthan') }}</span>
         </a>
 
         <nav aria-label="Primary navigation" class="hidden items-center gap-5 text-sm font-semibold text-slate-600 xl:flex 2xl:gap-7">

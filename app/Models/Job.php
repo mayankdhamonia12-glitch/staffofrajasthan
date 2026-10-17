@@ -33,7 +33,9 @@ class Job extends Model
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now())
             ->where('is_filled', false)
-            ->whereHas('company', fn (Builder $companies) => $companies->where('is_visible', true))
+            ->whereHas('company', fn (Builder $companies) => $companies
+                ->where('is_visible', true)
+                ->whereHas('user', fn (Builder $users) => $users->where('is_suspended', false)))
             ->where(fn (Builder $jobs) => $jobs->whereNull('application_deadline')->orWhereDate('application_deadline', '>=', today()));
     }
 

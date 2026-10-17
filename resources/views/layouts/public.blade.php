@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="@yield('description', 'Explore career opportunities and employers across Rajasthan with Staff of Rajasthan.')">
     <meta name="theme-color" content="#1967d2">
-    <title>@yield('title', 'Jobs in Rajasthan | Staff of Rajasthan')</title>
-    <meta property="og:site_name" content="Staff of Rajasthan">
-    <meta property="og:title" content="@yield('title', 'Jobs in Rajasthan | Staff of Rajasthan')">
+    <title>@yield('title', 'Jobs in Rajasthan | '.config('app.name', 'Staff of Rajasthan'))</title>
+    <meta property="og:site_name" content="{{ config('app.name', 'Staff of Rajasthan') }}">
+    <meta property="og:title" content="@yield('title', 'Jobs in Rajasthan | '.config('app.name', 'Staff of Rajasthan'))">
     <meta property="og:description" content="@yield('description', 'Explore career opportunities and employers across Rajasthan with Staff of Rajasthan.')">
     <meta property="og:url" content="@yield('canonical', url()->current())">
     <meta property="og:type" content="@yield('og_type', 'website')">
@@ -18,7 +18,7 @@
     @else
         <meta name="twitter:card" content="summary">
     @endif
-    <meta name="twitter:title" content="@yield('title', 'Jobs in Rajasthan | Staff of Rajasthan')">
+    <meta name="twitter:title" content="@yield('title', 'Jobs in Rajasthan | '.config('app.name', 'Staff of Rajasthan'))">
     <meta name="twitter:description" content="@yield('description', 'Explore career opportunities and employers across Rajasthan with Staff of Rajasthan.')">
     @hasSection('robots')<meta name="robots" content="@yield('robots')">@endif
     <link rel="canonical" href="@yield('canonical', url()->current())">

@@ -44,7 +44,7 @@ class PublicPageController extends Controller
 
     public function showCompany(Request $request, Company $company): View
     {
-        abort_unless($company->is_visible, 404);
+        abort_unless(Company::query()->whereKey($company->getKey())->publiclyVisible()->exists(), 404);
 
         $company->load(['industry', 'location'])->loadCount(['jobs' => fn ($query) => $query->publiclyAvailable()]);
         $jobs = $company->jobs()

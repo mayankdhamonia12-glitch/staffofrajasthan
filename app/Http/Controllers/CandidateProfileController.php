@@ -19,7 +19,7 @@ class CandidateProfileController extends Controller
     public function edit(Request $request): View
     {
         $profile = $this->profile($request)->load(['skills', 'educations', 'experiences', 'categories', 'languages', 'portfolios', 'awards']);
-        $availableSkills = Skill::query()->orderBy('name')->limit(100)->get(['id', 'name']);
+        $availableSkills = Skill::query()->where('is_active', true)->orderBy('name')->limit(100)->get(['id', 'name']);
         $categories = JobCategory::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']);
 
         return view('candidate.profile.edit', compact('profile', 'availableSkills', 'categories'));
@@ -202,7 +202,10 @@ class CandidateProfileController extends Controller
         $data['proficiency'] ??= 'intermediate';
         $name = trim(preg_replace('/\s+/', ' ', $data['name']) ?? $data['name']);
         $skill = Skill::query()->whereRaw('LOWER(name) = ?', [mb_strtolower($name)])->first()
-            ?? Skill::query()->firstOrCreate(['name' => $name]);
+            ?? Skill::query()->firstOrCreate(['name' => $name], ['is_active' => true]);
+        if (! $skill->is_active) {
+            throw ValidationException::withMessages(['name' => 'That skill is not currently available.']);
+        }
         $profile = $this->profile($request);
         if ($profile->skills()->whereKey($skill->getKey())->exists()) {
             $profile->skills()->updateExistingPivot($skill->getKey(), ['proficiency' => $data['proficiency']]);

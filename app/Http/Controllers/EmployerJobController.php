@@ -196,7 +196,7 @@ class EmployerJobController extends Controller
             'categories' => JobCategory::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'industries' => Industry::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
             'locations' => Location::query()->where('is_active', true)->orderBy('name')->get(['id', 'name', 'state']),
-            'skills' => Skill::query()->orderBy('name')->get(['id', 'name']),
+            'skills' => Skill::query()->where('is_active', true)->orderBy('name')->get(['id', 'name']),
         ];
     }
 
@@ -230,7 +230,7 @@ class EmployerJobController extends Controller
             'vacancies' => ['nullable', 'integer', 'between:1,10000'],
             'application_deadline' => ['nullable', 'date'],
             'skills' => ['nullable', 'array', 'max:20'],
-            'skills.*' => ['integer', 'distinct', 'exists:skills,id'],
+            'skills.*' => ['integer', 'distinct', 'exists:skills,id,is_active,1'],
         ]);
 
         if (isset($data['salary_min'], $data['salary_max']) && $data['salary_min'] > $data['salary_max']) {

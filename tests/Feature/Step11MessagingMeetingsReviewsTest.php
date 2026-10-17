@@ -150,7 +150,7 @@ test('reviews require a real application, stay candidate-private while pending a
     expect(CompanyReview::query()->count())->toBe(1);
 
     $this->actingAs($admin)->get(route('admin.company-reviews.index'))->assertOk()->assertSee($payload['title']);
-    $this->patch(route('admin.company-reviews.moderate', $review), ['status' => 'approved'])->assertRedirect();
+    $this->patch(route('admin.company-reviews.moderate', $review), ['status' => 'approved', 'moderation_note' => 'Review is appropriate and based on an application.'])->assertRedirect();
     expect($review->fresh()->status)->toBe(ReviewStatus::Approved);
     $this->get(route('companies.show', $company))->assertOk()->assertSee($payload['title'])->assertSee('5.0')->assertSee('1 approved review');
 });
