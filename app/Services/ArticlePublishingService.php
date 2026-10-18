@@ -17,7 +17,7 @@ use Throwable;
 class ArticlePublishingService
 {
     /**
-     * @param array<string, mixed> $data Validated editorial fields.
+     * @param  array<string, mixed>  $data  Validated editorial fields.
      */
     public function save(User $author, array $data, ?Article $article = null, ?UploadedFile $featuredImage = null): Article
     {

@@ -212,7 +212,7 @@ class BlogController extends Controller
     }
 
     /**
-     * @param 'categories'|'tags' $relationName
+     * @param  'categories'|'tags'  $relationName
      */
     private function archive(Request $request, string $relationName, string $slug, string $heading, string $description, string $canonical): View
     {

@@ -10,8 +10,8 @@ use Illuminate\Support\Str;
 class AdminAuditLogger
 {
     /**
-     * @param array<string, mixed>|null $before
-     * @param array<string, mixed>|null $after
+     * @param  array<string, mixed>|null  $before
+     * @param  array<string, mixed>|null  $after
      */
     public function record(
         User $actor,
@@ -36,7 +36,7 @@ class AdminAuditLogger
     }
 
     /** @param array<string, mixed>|null $values
-     *  @return array<string, mixed>|null
+     * @return array<string, mixed>|null
      */
     private function safeValues(?array $values): ?array
     {

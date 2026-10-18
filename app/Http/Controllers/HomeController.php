@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Company;
 use App\Models\Article;
+use App\Models\Company;
 use App\Models\Job;
 use App\Models\JobCategory;
 use App\Models\Location;

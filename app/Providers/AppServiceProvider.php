@@ -2,20 +2,20 @@
 
 namespace App\Providers;
 
+use App\Models\Article;
 use App\Models\Company;
 use App\Models\CompanyReview;
-use App\Models\Article;
-use App\Models\JobApplication;
 use App\Models\Job;
+use App\Models\JobApplication;
 use App\Models\User;
+use App\Observers\CompanyObserver;
+use App\Observers\JobObserver;
+use App\Policies\ArticlePolicy;
 use App\Policies\CompanyPolicy;
 use App\Policies\CompanyReviewPolicy;
-use App\Policies\ArticlePolicy;
 use App\Policies\JobApplicationPolicy;
 use App\Policies\JobPolicy;
 use App\Policies\UserPolicy;
-use App\Observers\CompanyObserver;
-use App\Observers\JobObserver;
 use App\Services\PlatformSettingsService;
 use App\UserRole;
 use App\View\Components\CandidateDashboardLayout;
