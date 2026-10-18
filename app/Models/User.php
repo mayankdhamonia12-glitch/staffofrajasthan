@@ -7,8 +7,8 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -109,7 +109,7 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * @param Builder<User> $query
+     * @param  Builder<User>  $query
      * @return Builder<User>
      */
     public function scopeActive(Builder $query): Builder
@@ -202,6 +202,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function blogArticles(): HasMany
     {
         return $this->hasMany(Article::class, 'author_id');
+    }
+
+    /** @return HasMany<PackagePurchase, $this> */
+    public function packagePurchases(): HasMany
+    {
+        return $this->hasMany(PackagePurchase::class, 'buyer_user_id');
+    }
+
+    /** @return HasMany<PackageEntitlement, $this> */
+    public function packageEntitlements(): HasMany
+    {
+        return $this->hasMany(PackageEntitlement::class);
     }
 
     /** @return BelongsToMany<Company, $this> */

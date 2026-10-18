@@ -19,6 +19,7 @@ class CandidateProfile extends Model
         'address', 'latitude', 'longitude', 'linkedin_url', 'facebook_url', 'twitter_url',
         'website_url', 'portfolio_url', 'video_provider', 'intro_video_url', 'intro_video_title',
         'availability_status', 'is_public', 'show_expected_salary', 'preferred_employment_types',
+        'share_contact_details', 'share_resume_with_employers',
     ];
 
     protected function casts(): array
@@ -28,6 +29,8 @@ class CandidateProfile extends Model
             'resume_uploaded_at' => 'datetime',
             'is_public' => 'boolean',
             'show_expected_salary' => 'boolean',
+            'share_contact_details' => 'boolean',
+            'share_resume_with_employers' => 'boolean',
             'preferred_employment_types' => 'array',
         ];
     }
@@ -90,6 +93,12 @@ class CandidateProfile extends Model
     public function profileViews(): HasMany
     {
         return $this->hasMany(CandidateProfileView::class);
+    }
+
+    /** @return HasMany<CandidateProfileAccess, $this> */
+    public function accesses(): HasMany
+    {
+        return $this->hasMany(CandidateProfileAccess::class);
     }
 
     public function completionPercentage(): int

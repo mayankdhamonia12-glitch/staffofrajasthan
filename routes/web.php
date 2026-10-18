@@ -1,5 +1,11 @@
 <?php
 
+use App\Http\Controllers\Admin\ArticleController;
+use App\Http\Controllers\Admin\BlogTaxonomyController;
+use App\Http\Controllers\Admin\ControlPanelController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\PackageController as AdminPackageController;
+use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CandidateAppliedJobsController;
 use App\Http\Controllers\CandidateDashboardController;
 use App\Http\Controllers\CandidateDirectoryController;
@@ -9,25 +15,23 @@ use App\Http\Controllers\CandidateProfileResourceController;
 use App\Http\Controllers\CandidateProfileViewsController;
 use App\Http\Controllers\CandidateSavedJobsController;
 use App\Http\Controllers\CandidateSettingsController;
-use App\Http\Controllers\BlogController;
 use App\Http\Controllers\CompanyFollowController;
 use App\Http\Controllers\CompanyReviewController;
 use App\Http\Controllers\ConversationController;
 use App\Http\Controllers\DashboardNotificationController;
 use App\Http\Controllers\EmployerApplicationController;
+use App\Http\Controllers\EmployerCandidateAccessController;
 use App\Http\Controllers\EmployerCompanyController;
 use App\Http\Controllers\EmployerDashboardController;
 use App\Http\Controllers\EmployerJobController;
+use App\Http\Controllers\EmployerPackageController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JobApplicationController;
 use App\Http\Controllers\JobController;
-use App\Http\Controllers\Admin\ArticleController;
-use App\Http\Controllers\Admin\ControlPanelController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-use App\Http\Controllers\Admin\BlogTaxonomyController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PublicPageController;
+use App\Http\Controllers\RazorpayWebhookController;
 use App\Livewire\Employer\Jobs\Index as EmployerJobsIndex;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +42,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', HomeController::class)->name('home');
+Route::post('/webhooks/razorpay', RazorpayWebhookController::class)->middleware('throttle:120,1')->name('webhooks.razorpay');
 Route::view('/jobs', 'jobs.index')->name('jobs.index');
 Route::get('/jobs/{job:slug}', [JobController::class, 'show'])->name('jobs.show');
 Route::get('/jobs/{job:slug}/apply', [JobApplicationController::class, 'create'])->middleware(['auth', 'role:candidate'])->name('jobs.apply');
@@ -166,6 +171,16 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 
 Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
     Route::get('/dashboard', EmployerDashboardController::class)->name('dashboard');
+    Route::get('/packages', [EmployerPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/{package}/review', [EmployerPackageController::class, 'review'])->name('packages.review');
+    Route::post('/packages/{package}/checkout', [EmployerPackageController::class, 'checkout'])->name('packages.checkout');
+    Route::get('/purchases', [EmployerPackageController::class, 'history'])->name('purchases.index');
+    Route::get('/purchases/{purchase:purchase_reference}', [EmployerPackageController::class, 'show'])->name('purchases.show');
+    Route::post('/purchases/{purchase:purchase_reference}/verify', [EmployerPackageController::class, 'verify'])->name('purchases.verify');
+    Route::post('/purchases/{purchase:purchase_reference}/retry', [EmployerPackageController::class, 'retry'])->name('purchases.retry');
+    Route::post('/candidates/{candidate:slug}/unlock', [EmployerCandidateAccessController::class, 'unlock'])->name('candidate-access.unlock');
+    Route::get('/candidates/{candidate:slug}/contact', [EmployerCandidateAccessController::class, 'show'])->name('candidate-access.show');
+    Route::get('/candidates/{candidate:slug}/resume', [EmployerCandidateAccessController::class, 'resume'])->name('candidate-access.resume');
     Route::get('/applications', [EmployerApplicationController::class, 'index'])->name('applications.index');
     Route::get('/jobs/{job}/applications', [EmployerApplicationController::class, 'forJob'])->name('jobs.applications.index');
     Route::get('/applications/{jobApplication}', [EmployerApplicationController::class, 'show'])->name('applications.show');
@@ -209,6 +224,14 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
 
 Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
+    Route::get('/packages', [AdminPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/create', [AdminPackageController::class, 'create'])->name('packages.create');
+    Route::post('/packages', [AdminPackageController::class, 'store'])->name('packages.store');
+    Route::get('/packages/{package}/edit', [AdminPackageController::class, 'edit'])->name('packages.edit');
+    Route::patch('/packages/{package}', [AdminPackageController::class, 'update'])->name('packages.update');
+    Route::patch('/packages/{package}/active', [AdminPackageController::class, 'setActive'])->name('packages.active');
+    Route::get('/package-purchases', [AdminPackageController::class, 'purchases'])->name('package-purchases.index');
+    Route::get('/package-purchases/{purchase:purchase_reference}', [AdminPackageController::class, 'showPurchase'])->name('package-purchases.show');
     Route::get('/users', [ControlPanelController::class, 'users'])->name('users.index');
     Route::get('/users/{user}', [ControlPanelController::class, 'showUser'])->whereNumber('user')->name('users.show');
     Route::post('/users/{user}/suspend', [ControlPanelController::class, 'suspendUser'])->whereNumber('user')->name('users.suspend');

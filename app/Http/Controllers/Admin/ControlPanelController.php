@@ -268,8 +268,24 @@ class ControlPanelController extends Controller
             'contact_phone' => ['nullable', 'string', 'max:30'],
             'timezone' => ['required', Rule::in(DateTimeZone::listIdentifiers())],
             'locale' => ['required', Rule::in(['en', 'hi'])],
+            'package_purchases_enabled' => ['sometimes', 'boolean'],
+            'paid_job_posting_required' => ['sometimes', 'boolean'],
         ]);
-        $settings->update($this->actor($request), $data);
+        $current = $settings->current();
+        $values = [
+            'site_name' => (string) $data['site_name'],
+            'contact_email' => is_string($data['contact_email'] ?? null) ? $data['contact_email'] : null,
+            'contact_phone' => is_string($data['contact_phone'] ?? null) ? $data['contact_phone'] : null,
+            'timezone' => (string) $data['timezone'],
+            'locale' => (string) $data['locale'],
+            'package_purchases_enabled' => array_key_exists('package_purchases_enabled', $data)
+                ? (bool) $data['package_purchases_enabled']
+                : $current->package_purchases_enabled,
+            'paid_job_posting_required' => array_key_exists('paid_job_posting_required', $data)
+                ? (bool) $data['paid_job_posting_required']
+                : $current->paid_job_posting_required,
+        ];
+        $settings->update($this->actor($request), $values);
 
         return back()->with('status', 'Platform settings updated.');
     }

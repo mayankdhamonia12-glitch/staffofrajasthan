@@ -23,13 +23,18 @@ class CandidateSettingsController extends Controller
             'name' => ['required', 'string', 'max:120'],
             'is_public' => ['required', 'boolean'],
             'show_expected_salary' => ['required', 'boolean'],
+            'share_contact_details' => ['sometimes', 'boolean'],
+            'share_resume_with_employers' => ['sometimes', 'boolean'],
         ]);
 
         DB::transaction(function () use ($request, $data): void {
             $request->user()->update(['name' => $data['name']]);
-            $request->user()->candidateProfile()->firstOrCreate()->update([
+            $profile = $request->user()->candidateProfile()->firstOrCreate();
+            $profile->update([
                 'is_public' => (bool) $data['is_public'],
                 'show_expected_salary' => (bool) $data['show_expected_salary'],
+                'share_contact_details' => (bool) ($data['share_contact_details'] ?? $profile->share_contact_details),
+                'share_resume_with_employers' => (bool) ($data['share_resume_with_employers'] ?? $profile->share_resume_with_employers),
             ]);
         });
 

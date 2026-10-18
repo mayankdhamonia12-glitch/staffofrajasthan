@@ -10,6 +10,7 @@ use App\Models\Location;
 use App\Models\Skill;
 use App\Models\User;
 use App\Services\JobAlertMatchingService;
+use App\Services\JobPostingEntitlementService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -22,7 +23,10 @@ use Illuminate\View\View;
 
 class EmployerJobController extends Controller
 {
-    public function __construct(private readonly JobAlertMatchingService $matching) {}
+    public function __construct(
+        private readonly JobAlertMatchingService $matching,
+        private readonly JobPostingEntitlementService $postingEntitlements,
+    ) {}
 
     public function create(Request $request): View
     {
@@ -39,7 +43,8 @@ class EmployerJobController extends Controller
             $this->ensurePublishable($company, $data);
         }
 
-        $job = DB::transaction(function () use ($company, $data, $status): Job {
+        $employer = $request->user();
+        $job = DB::transaction(function () use ($company, $data, $status, $employer): Job {
             $attributes = $this->jobAttributes($data);
             $attributes['slug'] = $this->uniqueSlug((string) $data['title']);
             $attributes['status'] = $status;
@@ -51,6 +56,7 @@ class EmployerJobController extends Controller
             $job = $company->jobs()->create($attributes);
             $job->skills()->sync($data['skills'] ?? []);
             if ($status === 'published') {
+                $this->postingEntitlements->authorizePublication($employer, $job);
                 $this->matching->evaluatePublicJob($job);
             }
 
@@ -89,7 +95,9 @@ class EmployerJobController extends Controller
             $this->ensureJobDetailsComplete($data);
         }
 
-        DB::transaction(function () use ($job, $company, $data, $status, $intent): void {
+        $employer = $request->user();
+        $wasPublished = $job->status === 'published';
+        DB::transaction(function () use ($job, $company, $data, $status, $intent, $employer, $wasPublished): void {
             $job->company()->associate($company);
             $attributes = $this->jobAttributes($data);
             if ($intent === 'draft') {
@@ -101,6 +109,9 @@ class EmployerJobController extends Controller
             $job->fill($attributes)->save();
             $job->skills()->sync($data['skills'] ?? []);
             if ($status === 'published') {
+                if (! $wasPublished || $job->packagePostingUse()->exists()) {
+                    $this->postingEntitlements->authorizePublication($employer, $job);
+                }
                 $this->matching->evaluatePublicJob($job);
             }
         });
@@ -183,7 +194,9 @@ class EmployerJobController extends Controller
             'employment_type' => $job->employment_type,
             'application_deadline' => $job->application_deadline?->toDateString(),
         ]);
+        $this->postingEntitlements->authorizePublication($request->user(), $job);
         $job->update(['status' => 'published', 'is_filled' => false, 'published_at' => $job->published_at ?? now()]);
+        $this->matching->evaluatePublicJob($job);
 
         return back()->with('status', 'Job reopened and published.');
     }

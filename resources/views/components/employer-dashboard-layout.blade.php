@@ -8,6 +8,8 @@
         ['id' => 'meetings', 'label' => 'Meetings', 'route' => 'employer.meetings.index', 'icon' => '▦'],
         ['id' => 'notifications', 'label' => 'Notifications', 'route' => 'employer.notifications.index', 'icon' => '♧'],
         ['id' => 'jobs', 'label' => 'My Jobs', 'route' => 'employer.jobs.index', 'icon' => '▤'],
+        ['id' => 'packages', 'label' => 'Packages & credits', 'route' => 'employer.packages.index', 'icon' => '₹'],
+        ['id' => 'purchases', 'label' => 'Billing history', 'route' => 'employer.purchases.index', 'icon' => '▧'],
         ['id' => 'post', 'label' => 'Post a Job', 'route' => 'employer.jobs.create', 'icon' => '+'],
         ['id' => 'companies', 'label' => 'Company Profile', 'route' => 'employer.companies.index', 'icon' => '▣'],
         ['id' => 'settings', 'label' => 'Settings', 'route' => 'profile.edit', 'icon' => '⚙'],

@@ -18,10 +18,12 @@ class PlatformSettingsService
             'site_name' => 'Staff of Rajasthan',
             'timezone' => 'UTC',
             'locale' => 'en',
+            'package_purchases_enabled' => false,
+            'paid_job_posting_required' => false,
         ]);
     }
 
-    /** @param array{site_name: string, contact_email: string|null, contact_phone: string|null, timezone: string, locale: string} $values */
+    /** @param array{site_name: string, contact_email: string|null, contact_phone: string|null, timezone: string, locale: string, package_purchases_enabled?: bool, paid_job_posting_required?: bool} $values */
     public function update(User $actor, array $values): PlatformSetting
     {
         return DB::transaction(function () use ($actor, $values): PlatformSetting {
@@ -29,10 +31,12 @@ class PlatformSettingsService
                 'site_name' => 'Staff of Rajasthan',
                 'timezone' => 'UTC',
                 'locale' => 'en',
+                'package_purchases_enabled' => false,
+                'paid_job_posting_required' => false,
             ]);
-            $before = $settings->only(['site_name', 'contact_email', 'contact_phone', 'timezone', 'locale']);
+            $before = $settings->only(['site_name', 'contact_email', 'contact_phone', 'timezone', 'locale', 'package_purchases_enabled', 'paid_job_posting_required']);
             $settings->forceFill([...$values, 'updated_by_user_id' => $actor->getKey()])->save();
-            $after = $settings->only(['site_name', 'contact_email', 'contact_phone', 'timezone', 'locale']);
+            $after = $settings->only(['site_name', 'contact_email', 'contact_phone', 'timezone', 'locale', 'package_purchases_enabled', 'paid_job_posting_required']);
 
             $this->audit->record($actor, 'platform.settings_updated', $settings, 'Updated platform settings.', null, $before, $after);
             $settings->refresh();
