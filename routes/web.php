@@ -45,15 +45,15 @@ Route::get('/', HomeController::class)->name('home');
 Route::post('/webhooks/razorpay', RazorpayWebhookController::class)->middleware('throttle:120,1')->name('webhooks.razorpay');
 Route::view('/jobs', 'jobs.index')->name('jobs.index');
 Route::get('/jobs/{job:slug}', [JobController::class, 'show'])->name('jobs.show');
-Route::get('/jobs/{job:slug}/apply', [JobApplicationController::class, 'create'])->middleware(['auth', 'role:candidate'])->name('jobs.apply');
-Route::post('/jobs/{job:slug}/apply', [JobApplicationController::class, 'store'])->middleware(['auth', 'role:candidate'])->name('jobs.apply.store');
+Route::get('/jobs/{job:slug}/apply', [JobApplicationController::class, 'create'])->middleware(['auth', 'verified', 'role:candidate'])->name('jobs.apply');
+Route::post('/jobs/{job:slug}/apply', [JobApplicationController::class, 'store'])->middleware(['auth', 'verified', 'role:candidate'])->name('jobs.apply.store');
 Route::get('/candidates', [CandidateDirectoryController::class, 'index'])->name('candidates.index');
 Route::get('/candidates/{candidate:slug}/photo', [CandidateDirectoryController::class, 'photo'])->name('candidates.photo');
 Route::get('/candidates/{candidate:slug}', [CandidateDirectoryController::class, 'show'])->name('candidates.show');
 Route::get('/companies', [PublicPageController::class, 'companies'])->name('companies.index');
 Route::get('/companies/{company:slug}', [PublicPageController::class, 'showCompany'])->name('companies.show');
-Route::post('/companies/{company:slug}/follow', [CompanyFollowController::class, 'store'])->middleware(['auth', 'role:candidate'])->name('companies.follow');
-Route::delete('/companies/{company:slug}/follow', [CompanyFollowController::class, 'destroy'])->middleware(['auth', 'role:candidate'])->name('companies.unfollow');
+Route::post('/companies/{company:slug}/follow', [CompanyFollowController::class, 'store'])->middleware(['auth', 'verified', 'role:candidate'])->name('companies.follow');
+Route::delete('/companies/{company:slug}/follow', [CompanyFollowController::class, 'destroy'])->middleware(['auth', 'verified', 'role:candidate'])->name('companies.unfollow');
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/category/{category:slug}', [BlogController::class, 'category'])->name('blog.categories.show');
 Route::get('/blog/tag/{tag:slug}', [BlogController::class, 'tag'])->name('blog.tags.show');
@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
     // Profile (any authenticated user)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->middleware('throttle:6,1')->name('profile.destroy');
 });
 
 /*
@@ -106,7 +106,7 @@ Route::middleware('auth')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:candidate'])->prefix('candidate')->name('candidate.')->group(function () {
     Route::get('/dashboard', CandidateDashboardController::class)->name('dashboard');
     Route::get('/applied-jobs', [CandidateAppliedJobsController::class, 'index'])->name('applied-jobs.index');
     Route::get('/saved-jobs', [CandidateSavedJobsController::class, 'index'])->name('saved-jobs.index');
@@ -169,7 +169,7 @@ Route::middleware(['auth', 'role:candidate'])->prefix('candidate')->name('candid
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:employer'])->prefix('employer')->name('employer.')->group(function () {
     Route::get('/dashboard', EmployerDashboardController::class)->name('dashboard');
     Route::get('/packages', [EmployerPackageController::class, 'index'])->name('packages.index');
     Route::get('/packages/{package}/review', [EmployerPackageController::class, 'review'])->name('packages.review');
@@ -222,7 +222,7 @@ Route::middleware(['auth', 'role:employer'])->prefix('employer')->name('employer
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'role:admin,owner'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
     Route::get('/packages', [AdminPackageController::class, 'index'])->name('packages.index');
     Route::get('/packages/create', [AdminPackageController::class, 'create'])->name('packages.create');

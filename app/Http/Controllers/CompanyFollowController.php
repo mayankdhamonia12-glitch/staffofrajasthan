@@ -14,7 +14,7 @@ class CompanyFollowController extends Controller
     {
         $candidate = $this->candidate($request);
         $companies = $candidate->followedCompanies()
-            ->where('companies.is_visible', true)
+            ->publiclyVisible()
             ->with(['industry', 'location'])
             ->withCount(['jobs as open_jobs_count' => fn ($jobs) => $jobs->publiclyAvailable()])
             ->orderBy('companies.name')
@@ -25,7 +25,7 @@ class CompanyFollowController extends Controller
 
     public function store(Request $request, Company $company): RedirectResponse
     {
-        abort_unless($company->is_visible, 404);
+        abort_unless(Company::query()->publiclyVisible()->whereKey($company->getKey())->exists(), 404);
         $candidate = $this->candidate($request);
         $candidate->followedCompanies()->syncWithoutDetaching([$company->getKey()]);
 

@@ -69,7 +69,10 @@ test('a candidate can opt into the public directory and its public photo endpoin
     $path = 'candidate-private/photos/'.$candidate->id.'/portrait.png';
     Storage::disk('local')->put($path, pngImage(64, 64));
     $profile->update(['profile_photo_path' => $path]);
-    $this->get(route('candidates.photo', $profile->slug))->assertOk();
+    $this->get(route('candidates.photo', $profile->slug))
+        ->assertOk()
+        ->assertHeaderContains('Cache-Control', 'private')
+        ->assertHeaderContains('Cache-Control', 'no-store');
     $profile->update(['is_public' => false]);
     $this->get(route('candidates.photo', $profile->slug))->assertNotFound();
 });

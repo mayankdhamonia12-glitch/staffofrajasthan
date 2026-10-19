@@ -184,6 +184,17 @@ test('candidate can follow public companies and only sees followed public compan
     $this->delete(route('companies.unfollow', $company))->assertRedirect();
     $this->assertDatabaseMissing('company_follows', ['user_id' => $candidate->id, 'company_id' => $company->id]);
 
+    $this->post(route('companies.follow', $company))->assertRedirect();
+    $admin = User::factory()->admin()->create();
+    $this->actingAs($admin)->post(route('admin.users.suspend', $employer), [
+        'reason' => 'Employer account is under an active compliance review.',
+    ])->assertRedirect();
+    $this->actingAs($candidate)->get(route('candidate.following.index'))->assertOk()->assertDontSee($company->name);
+    $this->post(route('companies.follow', $company))->assertNotFound();
+
+    $this->actingAs($admin)->post(route('admin.users.reactivate', $employer), [
+        'reason' => 'Employer account review is complete and verified.',
+    ])->assertRedirect();
     $company->update(['is_visible' => false]);
     $this->get(route('companies.show', $company))->assertNotFound();
 });

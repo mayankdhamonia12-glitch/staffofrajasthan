@@ -104,6 +104,6 @@ class CandidateDirectoryController extends Controller
         $disk = Storage::disk((string) config('candidate.private_disk'));
         abort_unless($disk->exists($candidate->profile_photo_path), 404);
 
-        return $disk->response($candidate->profile_photo_path, null, ['Cache-Control' => 'public, max-age=600']);
+        return $disk->response($candidate->profile_photo_path, null, ['Cache-Control' => 'private, no-store']);
     }
 }

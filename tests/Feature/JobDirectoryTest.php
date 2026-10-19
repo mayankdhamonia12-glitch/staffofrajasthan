@@ -199,6 +199,20 @@ test('job detail route rejects jobs that are not publicly available', function (
     $this->get(route('jobs.show', $draft))->assertNotFound();
 });
 
+test('job salary structured data is omitted when its salary period is unknown', function () {
+    $periodless = directoryJob([
+        'title' => 'Salary period not supplied',
+        'job' => ['salary_min' => 500000, 'salary_max' => 800000, 'salary_period' => null],
+    ]);
+    $yearly = directoryJob([
+        'title' => 'Yearly salary supplied',
+        'job' => ['salary_min' => 500000, 'salary_max' => 800000, 'salary_period' => 'yearly'],
+    ]);
+
+    $this->get(route('jobs.show', $periodless))->assertOk()->assertDontSee('"baseSalary"', false);
+    $this->get(route('jobs.show', $yearly))->assertOk()->assertSee('"baseSalary"', false)->assertSee('"unitText":"YEAR"', false);
+});
+
 test('homepage search submits keyword and location to the searchable jobs directory', function () {
     directoryJob(['title' => 'Udaipur Laravel Engineer', 'place' => 'Udaipur']);
     directoryJob(['title' => 'Jaipur Accountant', 'place' => 'Jaipur']);

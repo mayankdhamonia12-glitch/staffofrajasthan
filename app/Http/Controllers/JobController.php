@@ -81,7 +81,7 @@ class JobController extends Controller
             ],
         ], fn ($value): bool => $value !== null) : null;
 
-        if ($structuredData !== null && ($job->salary_min || $job->salary_max)) {
+        if ($structuredData !== null && $job->salary_period !== null && ($job->salary_min || $job->salary_max)) {
             $structuredData['baseSalary'] = [
                 '@type' => 'MonetaryAmount',
                 'currency' => $job->salary_currency,

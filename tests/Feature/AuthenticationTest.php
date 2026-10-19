@@ -63,6 +63,32 @@ test('an employer registration always creates an employer even with a forged rol
     expect(User::where('email', 'employer@example.com')->firstOrFail()->role)->toBe(UserRole::Employer);
 });
 
+test('password reset requests are rate limited', function () {
+    Notification::fake();
+
+    foreach (range(1, 6) as $attempt) {
+        $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.56'])
+            ->post(route('password.email'), ['email' => 'unknown@example.com'])
+            ->assertRedirect();
+    }
+
+    $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.56'])
+        ->post(route('password.email'), ['email' => 'unknown@example.com'])
+        ->assertTooManyRequests();
+});
+
+test('candidate registration requests are rate limited', function () {
+    foreach (range(1, 10) as $attempt) {
+        $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.57'])
+            ->post(route('register.candidate.store'), [])
+            ->assertRedirect();
+    }
+
+    $this->withServerVariables(['REMOTE_ADDR' => '192.0.2.57'])
+        ->post(route('register.candidate.store'), [])
+        ->assertTooManyRequests();
+});
+
 test('role dashboards enforce their boundaries', function () {
     $candidate = User::factory()->candidate()->create();
     $employer = User::factory()->employer()->create();

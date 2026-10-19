@@ -5,10 +5,15 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Once your account is deleted, all of its resources and data will be permanently deleted. Before deleting your account, please download any data or information that you wish to retain.') }}
+            {{ __('Your private profile files are removed after deletion. Accounts with shared recruitment history are protected so another person’s applications and records are not unexpectedly removed; contact support for those requests.') }}
         </p>
     </header>
 
+    @if (auth()->user()?->isOwner())
+        <p class="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            {{ __('Owner accounts cannot be deleted until an ownership-transfer workflow is available.') }}
+        </p>
+    @else
     <x-danger-button
         x-data=""
         x-on:click.prevent="$dispatch('open-modal', 'confirm-user-deletion')"
@@ -39,6 +44,7 @@
                 />
 
                 <x-input-error :messages="$errors->userDeletion->get('password')" class="mt-2" />
+                <x-input-error :messages="$errors->userDeletion->get('account')" class="mt-2" />
             </div>
 
             <div class="mt-6 flex justify-end">
@@ -52,4 +58,5 @@
             </div>
         </form>
     </x-modal>
+    @endif
 </section>
