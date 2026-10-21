@@ -5,32 +5,29 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Staff of Rajasthan') }}</title>
+        <meta name="description" content="Manage your Staff of Rajasthan account and platform workspace.">
+        <meta name="theme-color" content="#1d4ed8">
+        <title>{{ isset($title) ? $title.' · ' : '' }}{{ config('app.name', 'Staff of Rajasthan') }}</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-slate-50">
+    <body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+        <a href="#app-main" class="sr-only z-50 rounded-lg bg-white px-4 py-3 font-semibold text-brand-800 shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to content</a>
+        <div class="flex min-h-screen flex-col">
             @include('layouts.navigation')
 
-            <!-- Page Heading -->
             @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                <div class="border-b border-slate-100 bg-white">
+                    <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
-                </header>
+                </div>
             @endisset
 
-            <!-- Page Content -->
-            <main>
+            <main id="app-main" class="flex-1">
                 {{ $slot }}
             </main>
+            <x-public-footer />
         </div>
     </body>
 </html>

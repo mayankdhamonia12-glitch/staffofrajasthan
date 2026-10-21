@@ -3,10 +3,13 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Manage Staff of Rajasthan users, listings, content, and platform settings.">
+    <meta name="theme-color" content="#1d4ed8">
     <title>{{ $title }} · {{ config('app.name', 'Staff of Rajasthan') }}</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased">
+<body class="min-h-screen bg-slate-50 font-sans text-slate-900 antialiased">
+    <a href="#admin-main" class="sr-only z-50 rounded-lg bg-white px-4 py-3 font-semibold text-brand-800 shadow focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Skip to control panel content</a>
     <div class="min-h-screen lg:flex">
         <aside class="hidden w-64 shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col">
             <a href="{{ route('admin.dashboard') }}" class="flex h-16 items-center gap-3 border-b border-slate-100 px-6 font-extrabold text-slate-950"><span class="grid h-9 w-9 place-items-center rounded-xl bg-brand-700 text-white">S</span><span>Staff of Rajasthan <small class="block text-[10px] font-semibold uppercase tracking-widest text-slate-400">Control panel</small></span></a>
@@ -19,7 +22,7 @@
         </aside>
         <div class="min-w-0 flex-1">
             <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 backdrop-blur"><div class="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8"><div class="flex items-center gap-3"><details class="relative lg:hidden"><summary class="list-none cursor-pointer rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold">Menu</summary><nav class="absolute left-0 top-12 z-20 w-64 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">@foreach($links as $key => [$label, $routeName])<a class="block rounded-lg px-3 py-2 text-sm {{ $active === $key ? 'bg-brand-50 text-brand-800' : 'text-slate-700' }}" href="{{ route($routeName) }}">{{ $label }}</a>@endforeach @if(auth()->user()?->isOwner())<a class="block rounded-lg px-3 py-2 text-sm" href="{{ route('admin.settings.edit') }}">Platform settings</a><a class="block rounded-lg px-3 py-2 text-sm" href="{{ route('admin.audit.index') }}">Audit log</a>@endif</nav></details><h1 class="text-lg font-bold sm:text-xl">{{ $title }}</h1></div><div class="flex items-center gap-3"><a href="{{ route('home') }}" class="hidden text-sm font-semibold text-slate-600 hover:text-brand-700 sm:inline">View website</a><form method="POST" action="{{ route('logout') }}">@csrf<button class="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 hover:border-slate-300">Log out</button></form></div></div></header>
-            <main class="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
+            <main id="admin-main" class="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
                 @if(session('status'))<div role="status" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{{ session('status') }}</div>@endif
                 @if($errors->any())<div role="alert" class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><p class="font-semibold">Please review the submitted information.</p><ul class="mt-2 list-disc pl-5">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
                 {{ $slot }}

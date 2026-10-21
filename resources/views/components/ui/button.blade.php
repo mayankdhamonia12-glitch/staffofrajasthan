@@ -6,6 +6,7 @@
         'secondary' => 'border border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50',
         'soft' => 'bg-brand-50 text-brand-800 hover:bg-brand-100',
         'ghost' => 'text-slate-700 hover:bg-slate-100',
+        'light' => 'bg-white text-brand-800 shadow-sm hover:bg-brand-50',
     ];
     $sizes = ['sm' => 'px-3 py-2 text-sm', 'md' => 'px-5 py-3 text-sm', 'lg' => 'px-6 py-3.5 text-base'];
     $classes = $base.' '.($variants[$variant] ?? $variants['primary']).' '.($sizes[$size] ?? $sizes['md']);
